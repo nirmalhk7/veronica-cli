@@ -8,6 +8,8 @@ import getpass
 from .commands.casual import Casual
 from .commands.information import Information
 import pkg_resources
+import sentry_sdk
+from sentry_sdk import capture_message
 
 class Veronica(Casual,Information):
     def do_EOF(self, args):
@@ -47,6 +49,8 @@ def argParse(argx):
 
 def main():
     """Console script for veronica."""
+    sentry_sdk.init("https://3ac0bcf6b7c94dceba16841163e807d0@o410546.ingest.sentry.io/5299322")
+
     parser = argparse.ArgumentParser()
     parser.add_argument('_', nargs='*')
     args = parser.parse_args()
