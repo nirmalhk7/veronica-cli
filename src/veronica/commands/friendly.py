@@ -3,7 +3,7 @@ import os
 import random
 import getpass
 
-class Casual(Cmd):
+class Friendly(Cmd):
     def do_intro(self,args):
         username = getpass.getuser().capitalize()
         response = [

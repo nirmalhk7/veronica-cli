@@ -40,7 +40,9 @@ class Information(Cmd):
                 print("Sorry incorrect");
                 return
         print("Your result is",eval(inpstr))
-        
+
+    def do_pomodoro(self,args):
+        print(args) 
 
     def do_info(self,args):
         print("Retreiving information for your query ... ")

@@ -5,13 +5,14 @@ from pip._vendor.colorama import init
 from pip._vendor.colorama import Fore
 from cmd import Cmd
 import getpass
-from .commands.casual import Casual
+from .commands.friendly import Friendly
 from .commands.information import Information
 import pkg_resources
 import sentry_sdk
 from sentry_sdk import capture_message
+from .commands.pomo import Pomodoro
 
-class Veronica(Casual,Information):
+class Veronica(Friendly,Information,Pomodoro):
     def do_EOF(self, args):
         raise SystemExit
 
@@ -49,7 +50,7 @@ def argParse(argx):
 
 def main():
     """Console script for veronica."""
-    sentry_sdk.init("https://3ac0bcf6b7c94dceba16841163e807d0@o410546.ingest.sentry.io/5299322")
+    # sentry_sdk.init("https://3ac0bcf6b7c94dceba16841163e807d0@o410546.ingest.sentry.io/5299322")
 
     parser = argparse.ArgumentParser()
     parser.add_argument('_', nargs='*')
