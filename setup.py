@@ -27,6 +27,6 @@ setup(
     packages=find_packages(include=["src/veronica", "src/veronica.*"]),
     setup_requires=[],
     url="https://github.com/nirmalhk7/veronica",
-    version="0.1.0",
+    version="0.2.1",
     zip_safe=False,
 )

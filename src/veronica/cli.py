@@ -14,6 +14,7 @@ from .commands.pomo import Pomodoro
 
 class Veronica(Friendly,Information,Pomodoro):
     def do_EOF(self, args):
+        print("")
         raise SystemExit
 
     def emptyline(self):
@@ -56,7 +57,6 @@ def main():
     parser.add_argument('_', nargs='*')
     args = parser.parse_args()
 
-    print("Arguments: " + str(args._))
     init(autoreset=True)
     prompt = Veronica()
     prompt.prompt = 'veronica> '
