@@ -4,7 +4,9 @@ import geocoder
 import requests
 import urllib.parse
 import json
-from src.veronica.common import checkAPIActive,api_key
+import sys
+from veronica.common import checkAPIActive,api_key
+
 def f_to_c(far):
     return str(round((far-32)*5/9,2))
 

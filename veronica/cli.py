@@ -5,8 +5,8 @@ from pip._vendor.colorama import init
 from pip._vendor.colorama import Fore
 from cmd import Cmd
 import getpass
-from .commands.friendly import Friendly
 from .commands.information import Information
+from .commands.friendly import Friendly
 import pkg_resources
 import sentry_sdk
 from sentry_sdk import capture_message
@@ -56,7 +56,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('_', nargs='*')
     args = parser.parse_args()
-
+    print(parser)
     init(autoreset=True)
     prompt = Veronica()
     prompt.prompt = 'veronica> '
@@ -67,4 +67,5 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())  # pragma: no cover
+    print("Main")
+    sys.exit(main())
