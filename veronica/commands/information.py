@@ -5,6 +5,7 @@ import requests
 import urllib.parse
 import json
 import sys
+from pip._vendor.colorama import Fore
 from veronica.common import checkAPIActive,api_key
 
 def f_to_c(far):
@@ -31,7 +32,7 @@ class Information(Cmd):
                 if(data['currently']['precipProbability']>0.5):
                     res += " Expect a "+str(data['currently']['precipProbability']*100)+"% chance of "+data['currently']['precipType']+"."
                 print("")
-                print(res)
+                print(Fore.GREEN+res)
                 print("")
             else:
                 print("Error: "+response.status_code)
@@ -42,9 +43,6 @@ class Information(Cmd):
                 print("Sorry incorrect");
                 return
         print("Your result is",eval(inpstr))
-
-    def do_pomodoro(self,args):
-        print(args) 
 
     def do_info(self,args):
         print("Retreiving information for your query ... ")

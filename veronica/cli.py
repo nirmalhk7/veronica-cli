@@ -11,6 +11,12 @@ import pkg_resources
 import sentry_sdk
 from sentry_sdk import capture_message
 from .commands.pomo import Pomodoro
+from nltk import download
+from nltk import word_tokenize
+from nltk.corpus import stopwords
+
+download('stopwords', quiet=True)
+stop_words = set(stopwords.words('english'))
 
 class Veronica(Friendly,Information,Pomodoro):
     def do_EOF(self, args):
@@ -41,12 +47,18 @@ class Veronica(Friendly,Information,Pomodoro):
         print(Cmd.ruler*xlen)
     
     def onecmd(self, line):
-       # print("Middleware To Be Inserted")
-        super().onecmd(line)
+        search_query= word_tokenize(line);
+        processed_search_query=[]
+        for token in search_query:
+            if(token not in stop_words):
+                processed_search_query.append(token)
+        print(" ".join(processed_search_query))
+        super().onecmd(" ".join(processed_search_query))
+    def postloop(self):
+        print("Thank you!")
 
 def argParse(argx):
     commArg = argx[0]
-    remArgs = ""
     print(commArg)
 
 def main():
@@ -56,7 +68,6 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('_', nargs='*')
     args = parser.parse_args()
-    print(parser)
     init(autoreset=True)
     prompt = Veronica()
     prompt.prompt = 'veronica> '

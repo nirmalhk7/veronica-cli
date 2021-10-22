@@ -17,7 +17,7 @@ class Friendly(Cmd):
         username = getpass.getuser().capitalize()
         response = ["Hey wassup!",
             "Wasabi!",
-            "Konnichiwa "+username,
+            "Konnichiwa "+username+"!",
             "Greetings "+username+", how can I help you?",
             "Good Morning "+username+", what can I do for you today?",
             "Veronica at your service, sir. What shall I do today?"
