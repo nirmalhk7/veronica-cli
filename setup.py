@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
 
+
 setup(
     name="veronica",
     version='0.2.8',

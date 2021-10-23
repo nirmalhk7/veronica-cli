@@ -14,17 +14,15 @@ from sentry_sdk import capture_message
 from nltk import download
 from nltk import word_tokenize
 from nltk.corpus import stopwords, wordnet as wn
-from inspect import ismethod
 import logging
-import json
-import itertools
 import pickle
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.ERROR)
 download('stopwords', quiet=True)
 download('omw',quiet=True)
 stop_words = set(stopwords.words('english'))
 synsets = dict(pickle.load(pkg_resources.resource_stream(__name__,"data/command_synsets.veronica")))
+
 config_dictionary={}
 for pos,offset in synsets:
     config_dictionary[wn.synset_from_pos_and_offset(pos,offset)]=synsets[(pos,offset)]
@@ -44,6 +42,9 @@ class Veronica(Friendly,Information):
         if(not processed_search_query):
             return " ".join(processed_search_query)
 
+        if(processed_search_query in config_dictionary.values()):
+            return " ".join(processed_search_query)
+
         usercmd_sysnets= wn.synsets(processed_search_query[0])
         similarity={}
         for net in usercmd_sysnets:
@@ -57,19 +58,14 @@ class Veronica(Friendly,Information):
             logging.debug("Sorted similarity: {}".format(similarity_list))
             logging.info("Max similarity: {} at {}".format(str(max_similarity_key),similarity[similarity_list[0]]))
             logging.debug("Reprocessed command: {}".format(command))
-            getattr(self,"do_"+command)(1)
+            getattr(self,"do_"+command)(self," ".join(processed_search_query[1:]))
             return ""
         else: 
             return " ".join(processed_search_query)
 
+    
 
-        
 
-    def postloop(self):
-        print("Thank you!")
-
-def argParse(argx):
-    logging.debug(argx)
 
 
 def main():
@@ -82,8 +78,10 @@ def main():
     prompt = Veronica()
     prompt.prompt = 'veronica> '
     prompt.ruler = '-'
-    if(len(args._)): argParse(args._)
-    prompt.cmdloop(Fore.YELLOW+'Welcome '+getpass.getuser().capitalize()+"! Veronica at your service ...")
+    if(len(args._)): 
+        Veronica.precmd(Veronica," ".join(args._))
+    else:
+        prompt.cmdloop(Fore.YELLOW+'Welcome '+getpass.getuser().capitalize()+"! Veronica at your service ...")
     return 0
 
 
