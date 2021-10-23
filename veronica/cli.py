@@ -13,24 +13,25 @@ import sentry_sdk
 from sentry_sdk import capture_message
 from nltk import download
 from nltk import word_tokenize
-from nltk.corpus import stopwords, wordnet
+from nltk.corpus import stopwords, wordnet as wn
 from inspect import ismethod
 import logging
 import json
 import itertools
 import pickle
 
+logging.basicConfig(level=logging.INFO)
 download('stopwords', quiet=True)
 download('omw',quiet=True)
 stop_words = set(stopwords.words('english'))
 synsets = dict(pickle.load(pkg_resources.resource_stream(__name__,"data/command_synsets.veronica")))
 config_dictionary={}
 for pos,offset in synsets:
-    config_dictionary[wordnet.synset_from_pos_and_offset(pos,offset)]=synsets[(pos,offset)]
-print(config_dictionary)
+    config_dictionary[wn.synset_from_pos_and_offset(pos,offset)]=synsets[(pos,offset)]
+logging.debug("Command config: {}".format(str(config_dictionary)))
+
 
 class Veronica(Friendly,Information):
-
     def precmd(self, line):
         line = line.lower()
         search_query= word_tokenize(line);
@@ -40,40 +41,28 @@ class Veronica(Friendly,Information):
                 processed_search_query.append(token)
         logging.debug("Preprocessed query: {}".format(" ".join(processed_search_query)))
         
-        allcmds=[i[3:] for i in dir(self) if ismethod(getattr(self,i)) and i[:3]=="do_"]
-        logging.debug("Available command tags: {}".format(str(allcmds)))
+        if(not processed_search_query):
+            return " ".join(processed_search_query)
 
-        # If query exactly matches the command key
-        # if(processed_search_query[0] in allcmds):
-        #     return " ".join(processed_search_query)
-        # usercmd= wordnet.synsets(processed_search_query[0])
+        usercmd_sysnets= wn.synsets(processed_search_query[0])
+        similarity={}
+        for net in usercmd_sysnets:
+            for v_cmd in config_dictionary.keys():
+                similarity[(v_cmd,net)]=v_cmd.wup_similarity(net) or 0
+        similarity_list=sorted(similarity, key=similarity.__getitem__, reverse=True)
         
-        
-        # with open("dict_to_json_textfile.json", 'w') as fout:
-        #     json_dumps_str = json.dumps(allcmds_dict, indent=4)
-        #     print(json_dumps_str, file=fout)
-        # similarity={}
-        # for w1 in usercmd:
-        #     for w2 in allcmds_synsets:
-        #         sim=wordnet.path_similarity(w1,w2)
-        #         if(sim==None): sim=0
-        #         similarity[(w1.name().partition('.')[0],w2.name().partition('.')[0])]=sim
-        # similarity_list=sorted(similarity, key=similarity.__getitem__, reverse=True)
-        # logging.debug("Synset similarity: {}".format(str(similarity_list)))
-        # if(similarity[similarity_list]>)
+        if(similarity_list and similarity[similarity_list[0]]>0.85):
+            max_similarity_key=similarity_list[0]
+            command=config_dictionary[max_similarity_key[0]]
+            logging.debug("Sorted similarity: {}".format(similarity_list))
+            logging.info("Max similarity: {} at {}".format(str(max_similarity_key),similarity[similarity_list[0]]))
+            logging.debug("Reprocessed command: {}".format(command))
+            getattr(self,"do_"+command)(1)
+            return ""
+        else: 
+            return " ".join(processed_search_query)
 
-        # if(usercmd):
-        #     for allcmd in allcmds:
-        #         allcmd_synsets= wordnet.synsets(allcmd)
-        #         print(allcmd_synsets)
-        #         if(allcmd_synsets):
-        #             print(processed_search_query[0],allcmd,usercmd[0].wup_similarity(allcmd_synsets[0]))
-        
-        
-        
 
-        # Get all relevant function names from this next line.
-        # [i for i in dir(self) if ismethod(getattr(self,i)) and i[:3]=="do_"]
         
 
     def postloop(self):
@@ -82,10 +71,10 @@ class Veronica(Friendly,Information):
 def argParse(argx):
     logging.debug(argx)
 
+
 def main():
     """Console script for veronica."""
     # sentry_sdk.init("https://3ac0bcf6b7c94dceba16841163e807d0@o410546.ingest.sentry.io/5299322")
-    logging.basicConfig(level=logging.DEBUG)
     parser = argparse.ArgumentParser()
     parser.add_argument('_', nargs='*')
     args = parser.parse_args()
