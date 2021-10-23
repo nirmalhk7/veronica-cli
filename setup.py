@@ -12,5 +12,7 @@ setup(
     license="MIT",
     packages=find_packages(),
     entry_points={"console_scripts": ["veronica=veronica.cli:main",],},
+    include_package_data=True,
+    package_data={'': ['data/*.veronica']},
     # packages=["veronica"]
 )
