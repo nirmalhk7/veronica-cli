@@ -1,5 +1,6 @@
 """Console script for veronica."""
 import argparse
+from collections import defaultdict
 import sys
 from pip._vendor.colorama import init
 from pip._vendor.colorama import Fore
@@ -10,59 +11,77 @@ from .commands.friendly import Friendly
 import pkg_resources
 import sentry_sdk
 from sentry_sdk import capture_message
-from .commands.pomo import Pomodoro
+from nltk import download
+from nltk import word_tokenize
+from nltk.corpus import stopwords, wordnet as wn
+import logging
+import pickle
 
-class Veronica(Friendly,Information,Pomodoro):
-    def do_EOF(self, args):
-        print("")
-        raise SystemExit
+logging.basicConfig(level=logging.ERROR)
+download('stopwords', quiet=True)
+download('omw',quiet=True)
+stop_words = set(stopwords.words('english'))
+synsets = dict(pickle.load(pkg_resources.resource_stream(__name__,"data/command_synsets.veronica")))
 
-    def emptyline(self):
-        return True
+config_dictionary={}
+for pos,offset in synsets:
+    config_dictionary[wn.synset_from_pos_and_offset(pos,offset)]=synsets[(pos,offset)]
+logging.debug("Command config: {}".format(str(config_dictionary)))
+
+
+class Veronica(Friendly,Information):
+    def precmd(self, line):
+        line = line.lower()
+        search_query= word_tokenize(line);
+        processed_search_query=[]
+        for token in search_query:
+            if(token not in stop_words):
+                processed_search_query.append(token)
+        logging.debug("Preprocessed query: {}".format(" ".join(processed_search_query)))
         
-    def do_version(self,args):
-        message=["Veronica v"+pkg_resources.require("veronica")[0].version,
-        "Inspired from Tony Stark and built by Nirmal Khedkar",
-        "Check out:",
-        "   www.github.com/nirmalhk7/veronica-cli",             # TODO Display this as clickable link
-        "   nirmallhk7.tech",                                   # TODO Display this as clickable link
-        ""
-        "Always #TeamIronMan. Love you 3000!"]
-        xlen = 0
-        for msg in message:
-            if(xlen<len(msg)):
-                xlen = len(msg)
-        print("")
-        print(Cmd.ruler*xlen)
-        print("")
-        for msg in message:
-            print(msg)
-        print("")
-        print(Cmd.ruler*xlen)
-    
-    def onecmd(self, line):
-       # print("Middleware To Be Inserted")
-        super().onecmd(line)
+        if(not processed_search_query):
+            return " ".join(processed_search_query)
 
-def argParse(argx):
-    commArg = argx[0]
-    remArgs = ""
-    print(commArg)
+        if(processed_search_query in config_dictionary.values()):
+            return " ".join(processed_search_query)
+
+        usercmd_sysnets= wn.synsets(processed_search_query[0])
+        similarity={}
+        for net in usercmd_sysnets:
+            for v_cmd in config_dictionary.keys():
+                similarity[(v_cmd,net)]=v_cmd.wup_similarity(net) or 0
+        similarity_list=sorted(similarity, key=similarity.__getitem__, reverse=True)
+        
+        if(similarity_list and similarity[similarity_list[0]]>0.85):
+            max_similarity_key=similarity_list[0]
+            command=config_dictionary[max_similarity_key[0]]
+            logging.debug("Sorted similarity: {}".format(similarity_list))
+            logging.info("Max similarity: {} at {}".format(str(max_similarity_key),similarity[similarity_list[0]]))
+            logging.debug("Reprocessed command: {}".format(command))
+            getattr(self,"do_"+command)(self," ".join(processed_search_query[1:]))
+            return ""
+        else: 
+            return " ".join(processed_search_query)
+
+    
+
+
+
 
 def main():
     """Console script for veronica."""
     # sentry_sdk.init("https://3ac0bcf6b7c94dceba16841163e807d0@o410546.ingest.sentry.io/5299322")
-
     parser = argparse.ArgumentParser()
     parser.add_argument('_', nargs='*')
     args = parser.parse_args()
-    print(parser)
     init(autoreset=True)
     prompt = Veronica()
     prompt.prompt = 'veronica> '
     prompt.ruler = '-'
-    if(len(args._)): argParse(args._)
-    prompt.cmdloop(Fore.YELLOW+'Welcome '+getpass.getuser().capitalize()+"! Veronica at your service ...")
+    if(len(args._)): 
+        Veronica.precmd(Veronica," ".join(args._))
+    else:
+        prompt.cmdloop(Fore.YELLOW+'Welcome '+getpass.getuser().capitalize()+"! Veronica at your service ...")
     return 0
 
 

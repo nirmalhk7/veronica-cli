@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
 
+
 setup(
     name="veronica",
     version='0.2.8',
@@ -12,5 +13,7 @@ setup(
     license="MIT",
     packages=find_packages(),
     entry_points={"console_scripts": ["veronica=veronica.cli:main",],},
+    include_package_data=True,
+    package_data={'': ['data/*.veronica']},
     # packages=["veronica"]
 )
