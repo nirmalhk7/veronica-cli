@@ -13,20 +13,26 @@ from sentry_sdk import capture_message
 from .commands.pomo import Pomodoro
 from nltk import download
 from nltk import word_tokenize
-from nltk.corpus import stopwords
+from nltk.corpus import stopwords, wordnet
+from inspect import ismethod
 
 download('stopwords', quiet=True)
 stop_words = set(stopwords.words('english'))
 
 class Veronica(Friendly,Information,Pomodoro):
-    def do_EOF(self, args):
-        print("")
-        raise SystemExit
+    # def do_EOF(self, args):
+    #     print("")
+    #     raise SystemExit
 
-    def emptyline(self):
-        return True
-        
+    # def emptyline(self):
+    #     return True
+    
+    def direct(arg):
+        print(arg,globals())
+        globals()["Veronica"]["do_"+arg[0]](arg[1])
+
     def do_version(self,args):
+
         message=["Veronica v"+pkg_resources.require("veronica")[0].version,
         "Inspired from Tony Stark and built by Nirmal Khedkar",
         "Check out:",
@@ -52,14 +58,25 @@ class Veronica(Friendly,Information,Pomodoro):
         for token in search_query:
             if(token not in stop_words):
                 processed_search_query.append(token)
-        print(" ".join(processed_search_query))
-        super().onecmd(" ".join(processed_search_query))
+        
+        allcmds=[i[3:] for i in dir(self) if ismethod(getattr(self,i)) and i[:3]=="do_"]
+        usercmd= wordnet.synsets(processed_search_query[0])
+        if(usercmd):
+            for allcmd in allcmds:
+                allcmd_synsets= wordnet.synsets(allcmd)
+                if(allcmd_synsets):
+                    print(processed_search_query[0],allcmd,usercmd[0].wup_similarity(allcmd_synsets[0]))
+        
+        self.do_hi(processed_search_query[1:])
+        # Get all relevant function names from this next line.
+        # [i for i in dir(self) if ismethod(getattr(self,i)) and i[:3]=="do_"]
+        
+
     def postloop(self):
         print("Thank you!")
 
 def argParse(argx):
-    commArg = argx[0]
-    print(commArg)
+    Veronica.direct(argx);
 
 def main():
     """Console script for veronica."""
