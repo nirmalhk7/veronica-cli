@@ -2,6 +2,8 @@ import geocoder
 import requests
 from pip._vendor.colorama import Fore
 
+from veronica.voice import vx_print
+
 
 def do_info(self,args):
     print("Retreiving information for your query ... ")
@@ -11,6 +13,7 @@ def do_info(self,args):
     except ValueError:
         query = args
         limit = 1
+    
     service_url = 'https://kgsearch.googleapis.com/v1/entities:search'
     if(self.env["KNOWLEDGE_GRAPH"]):
         parameters = {
@@ -27,19 +30,19 @@ def do_info(self,args):
                     res = data['itemListElement'][i]['result']
                     print("")
                     try:
-                        print(res['name'])
+                        vx_print(res['name'])
                     except KeyError:
                         pass
                     try:
-                        print(res['description'])
+                        vx_print(res['description'])
                     except KeyError:
                         pass
                     try:    
-                        print(res['detailedDescription']['articleBody'])
+                        vx_print(res['detailedDescription']['articleBody'])
                     except KeyError:
                         pass
                     print("")
                 except IndexError:
-                    print("Sorry, no data available!")
+                    vx_print("Sorry, no data available!")
         else:
-            print("Error: "+response.status_code)
+            print("Error: {}".format(str(response)))

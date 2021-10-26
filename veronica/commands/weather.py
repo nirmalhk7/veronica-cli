@@ -2,17 +2,19 @@ import geocoder
 import requests
 from pip._vendor.colorama import Fore
 
+from veronica.voice import vx_print
+
 
 def do_weather(self,args):
+    def f_to_c(x):
+        return str(round((x - 32) * 5.0/9.0,2))
+
     locError = False
-    
+
+    vx_print("Retreiving weather for "+(args.capitalize() if args else "your current location")+" ... ", speak=False)
     if (args != ""):
-        print("Retreiving weather for "+args.capitalize()+" ... ")
-        g = geocoder.arcgis(args)
-        print(g)
         coord = g.latlng
     elif (args == "" or locError):
-        print("Retrieving weather for your current location ... ")
         g = geocoder.ip('me')
         coord = g.latlng
     if(self.env["WEATHER_DARKSKY"]):
@@ -22,8 +24,8 @@ def do_weather(self,args):
             res = data['currently']['summary']+" today with "+f_to_c(data['currently']['temperature'])+"° C."
             if(data['currently']['precipProbability']>0.5):
                 res += " Expect a "+str(data['currently']['precipProbability']*100)+"% chance of "+data['currently']['precipType']+"."
-            print("")
-            print(Fore.GREEN+res)
-            print("")
+            vx_print("")
+            vx_print(res,color=Fore.GREEN)
+            vx_print("")
         else:
-            print("Error: "+response.status_code)
+            vx_print("Error: "+response.status_code)

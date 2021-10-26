@@ -2,6 +2,7 @@
 import argparse
 import sys
 from collections import defaultdict
+from typing import Type
 from pip._vendor.colorama import init
 from pip._vendor.colorama import Fore
 from cmd import Cmd
@@ -13,15 +14,17 @@ from nltk.corpus import stopwords, wordnet as wn
 import logging
 from pathlib import Path
 import pickle
-from os import getenv
+from os import system
 from dotenv import load_dotenv
 
+from veronica.voice import vx_empty_stack, vx_speak
 
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('_', nargs='*')
 parser.add_argument('-l','--log',default=logging.DEBUG,help="Logging Level")
+parser.add_argument('-lf','--logfile',default=True,help="Logging Level")
 args = parser.parse_args()
 
 level= None
@@ -37,7 +40,8 @@ elif(args.log=="DEBUG"):
     level= logging.DEBUG
 elif(args.log=="NOTSET"):
     level= logging.NOTSET
-logging.basicConfig(level=level or logging.ERROR,filename=Path.home()/"veronica.log")
+
+logging.basicConfig(level=level or logging.ERROR,filename=Path.home()/"veronica.log" if args.logfile and args.logfile!="false" else None)
 
 
 download('stopwords', quiet=True)
@@ -50,6 +54,10 @@ for pos,offset in synsets:
     config_dictionary[wn.synset_from_pos_and_offset(pos,offset)]=synsets[(pos,offset)]
 
 class Veronica(Cmd):
+    r=3
+    path = __name__ 
+    env = defaultdict() # or dict {}
+    username = getpass.getuser().capitalize()
     
     from veronica.commands.calc import do_calc
     from veronica.commands.hi import do_hi
@@ -58,9 +66,9 @@ class Veronica(Cmd):
     from veronica.commands.joke import do_joke
     from veronica.commands.weather import do_weather
 
-    def cmdloop(self, intro) -> None:
-        self.env = defaultdict() # or dict {}
-        self.username = getpass.getuser().capitalize()
+
+
+    def vx_setup(self):
         with open(Path.home()/".veronica.env") as f:
             for line in f:
                 if line.startswith('#') or not line.strip():
@@ -70,10 +78,22 @@ class Veronica(Cmd):
                 value= int(value) if value.isdigit() else value
                 self.env[key]=value
         logging.debug("Loaded env variables from {}: {}".format(str(Path.home()/".veronica.env"),str(self.env)))
+
+    def cmdloop(self, intro) -> None:
+        self.vx_setup()
+        vx_speak('Welcome {}! Veronica at your service ...'.format(getpass.getuser().capitalize()))
         return super().cmdloop(intro=intro)
 
     def emptyline(self):
         return None
+
+    def do_exit(self,args):
+        exit()
+
+    def postcmd(self, stop: bool, line: str):
+        vx_empty_stack()
+
+
     def precmd(self, line):
         line = line.lower()
         search_query= word_tokenize(line);
@@ -101,11 +121,15 @@ class Veronica(Cmd):
             command=config_dictionary[max_similarity_key[0]]
             logging.info("Max similarity: {} at {}".format(str(max_similarity_key),similarity[similarity_list[0]]))
             logging.debug("Reprocessed command: {}".format(command))
-            
             try:
-                getattr(self,"do_"+command)(" ".join(processed_search_query[1:]))
-            except:
+                
+                self.vx_setup(self)
                 getattr(self,"do_"+command)(self," ".join(processed_search_query[1:]))
+                vx_empty_stack()
+            except TypeError:
+                self.vx_setup()
+                getattr(self,"do_"+command)(" ".join(processed_search_query[1:]))
+            
             return ""
         else: 
             return " ".join(processed_search_query)
