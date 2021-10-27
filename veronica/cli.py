@@ -15,7 +15,6 @@ import logging
 from pathlib import Path
 import pickle
 from os import system
-from dotenv import load_dotenv
 
 from veronica.voice import vx_empty_stack, vx_speak
 
@@ -65,6 +64,10 @@ class Veronica(Cmd):
     from veronica.commands.intro import do_intro
     from veronica.commands.joke import do_joke
     from veronica.commands.weather import do_weather
+    from veronica.commands.email import do_email
+    from veronica.commands.calendar import do_calendar
+    from veronica.commands.search import do_search
+    
 
 
 

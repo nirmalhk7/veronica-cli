@@ -3,7 +3,7 @@ import pickle
 from nltk.corpus import wordnet as wn
 
 method_names = [attr[3:] for attr in dir(Veronica) if attr[:3]=="do_"]
-
+print(method_names)
 synsets_all = {}
 
 for method in method_names:

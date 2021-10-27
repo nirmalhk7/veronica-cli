@@ -1,3 +1,4 @@
+from veronica.voice import vx_print
 
 def do_calc(self,args):
     inpstr = args.split(' ')[0]
@@ -5,4 +6,4 @@ def do_calc(self,args):
         if(x.isalpha() and x!='e'):
             print("Sorry incorrect");
             return
-    print("Your result is",eval(inpstr))
+    vx_print("Your result is",eval(inpstr))
