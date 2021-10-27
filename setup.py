@@ -12,7 +12,7 @@ setup(
     python_requires=">=3.6",
     license="MIT",
     packages=find_packages(),
-    install_requires=["pyjokes==0.6.0","python-dotenv==0.19.1"],
+    install_requires=[],
     entry_points={"console_scripts": ["veronica=veronica.cli:main",],},
     include_package_data=True,
     package_data={'': ['data/*.veronica']}

@@ -122,14 +122,17 @@ class Veronica(Cmd):
             logging.info("Max similarity: {} at {}".format(str(max_similarity_key),similarity[similarity_list[0]]))
             logging.debug("Reprocessed command: {}".format(command))
             try:
-                
+                # If command is passed as argument
                 self.vx_setup(self)
                 getattr(self,"do_"+command)(self," ".join(processed_search_query[1:]))
                 vx_empty_stack()
             except TypeError:
+                # If command is passed through Veronica CLI
                 self.vx_setup()
                 getattr(self,"do_"+command)(" ".join(processed_search_query[1:]))
-            
+            except AttributeError:
+                # If wrong command is passed with attributes.
+                pass
             return ""
         else: 
             return " ".join(processed_search_query)
