@@ -41,6 +41,10 @@ def do_info(self,args):
                         vx_print(res['detailedDescription']['articleBody'])
                     except KeyError:
                         pass
+                    try:    
+                        print(res['detailedDescription']['url'])
+                    except KeyError:
+                        pass
                     print("")
                 except IndexError:
                     vx_print("Sorry, no data available!")

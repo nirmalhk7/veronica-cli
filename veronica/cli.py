@@ -67,7 +67,7 @@ class Veronica(Cmd):
     from veronica.commands.email import do_email
     from veronica.commands.calendar import do_calendar
     from veronica.commands.search import do_search
-    
+    from veronica.commands.query import do_query
 
 
 
@@ -80,12 +80,13 @@ class Veronica(Cmd):
                 key, value = key.strip(), value.strip()
                 value= int(value) if value.isdigit() else value
                 self.env[key]=value
+        
         logging.debug("Loaded env variables from {}: {}".format(str(Path.home()/".veronica.env"),str(self.env)))
 
     def cmdloop(self, intro) -> None:
         self.vx_setup()
-        vx_speak('Welcome {}! Veronica at your service ...'.format(getpass.getuser().capitalize()))
-        return super().cmdloop(intro=intro)
+        # vx_speak('Welcome {}! Veronica at your service ...'.format(getpass.getuser().capitalize()))
+        super().cmdloop(intro=intro)
 
     def emptyline(self):
         return None
@@ -96,6 +97,8 @@ class Veronica(Cmd):
     def postcmd(self, stop: bool, line: str):
         vx_empty_stack()
 
+    def onecmd(self, line: str) -> bool:
+        return super().onecmd(line)
 
     def precmd(self, line):
         line = line.lower()
