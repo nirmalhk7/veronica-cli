@@ -1,7 +1,9 @@
 from random import randint
+from veronica.config import component
 
 from veronica.voice import vx_print
 
+@component
 def do_hi(self,args):
     response = ["Hey!",
         ""

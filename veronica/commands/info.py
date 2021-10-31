@@ -1,10 +1,11 @@
 import geocoder
 import requests
 from pip._vendor.colorama import Fore
+from veronica.config import component
 
 from veronica.voice import vx_print
 
-
+@component
 def do_info(self,args):
     print("Retreiving information for your query ... ")
     try:

@@ -1,5 +1,8 @@
 from random import randint
 
+from veronica.config import component
+
+@component
 def do_intro(self,args):
     response = [
         "I'm Veronica, your personal Linux assistant.",

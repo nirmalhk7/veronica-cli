@@ -3,3 +3,6 @@
 __author__ = """Nirmal Khedkar"""
 __email__ = 'nirmalhk7@gmail.com'
 __version__ = '0.1.0'
+
+def root_path():
+    return __name__

@@ -1,10 +1,11 @@
 import geocoder
 import requests
 from pip._vendor.colorama import Fore
+from veronica.config import component
 
 from veronica.voice import vx_print
 
-
+@component
 def do_weather(self,args):
     def f_to_c(x):
         return str(round((x - 32) * 5.0/9.0,2))

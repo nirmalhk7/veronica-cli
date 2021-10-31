@@ -1,11 +1,13 @@
 from collections import defaultdict
 from pathlib import Path
+from veronica.config import component
 from veronica.voice import vx_print
 from json import load
 import inspect
 import webbrowser
 import re
 
+@component
 def do_query(self,args):
     """
         
@@ -41,12 +43,4 @@ def do_query(self,args):
         pass
     def query_delete(key):
         pass
-    args= args.split(" ")
-    sub_args= defaultdict(invalid_command,{
-        "get": query_get,
-        "list": query_list,
-        "create": query_create,
-        "delete": query_delete,
-        "update": query_update
-    })
-    sub_args[args[0]](" ".join(args[1:]))
+    print("")
