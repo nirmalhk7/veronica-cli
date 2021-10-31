@@ -1,8 +1,14 @@
 """Console script for veronica."""
 import argparse
+import json
 import sys
 from collections import defaultdict
 from typing import Type
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
 from pip._vendor.colorama import init
 from pip._vendor.colorama import Fore
 from cmd import Cmd
@@ -15,6 +21,7 @@ import logging
 from pathlib import Path
 import pickle
 from os import system
+
 
 from veronica.voice import vx_empty_stack, vx_speak
 
@@ -53,7 +60,8 @@ for pos,offset in synsets:
     config_dictionary[wn.synset_from_pos_and_offset(pos,offset)]=synsets[(pos,offset)]
 
 class Veronica(Cmd):
-    r=3
+    
+    SCOPES= ['https://www.googleapis.com/auth/gmail.readonly','https://www.googleapis.com/auth/calendar.readonly']
     path = __name__ 
     env = defaultdict() # or dict {}
     username = getpass.getuser().capitalize()
@@ -82,6 +90,23 @@ class Veronica(Cmd):
                 self.env[key]=value
         
         logging.debug("Loaded env variables from {}: {}".format(str(Path.home()/".veronica.env"),str(self.env)))
+    def vx_google_setup(self,SCOPES):
+        with open(Path.home()/"veronica.settings.json","r") as f:
+            settings= json.load(f)
+        creds=None
+        if "token" in settings["google"]:
+            creds= Credentials.from_authorized_user_info(settings["google"]["token"], SCOPES)
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                flow= InstalledAppFlow.from_client_config(settings["google"]["credentials"],SCOPES)
+                creds = flow.run_local_server(port=0)
+            settings["google"]["token"]=json.loads(creds.to_json());
+            with open(Path.home()/"veronica.settings.json","w") as f:
+                settings= json.dump(settings,f,indent=4)
+            # dumps(settings, indent = 4)
+        return creds
 
     def cmdloop(self, intro) -> None:
         self.vx_setup()
