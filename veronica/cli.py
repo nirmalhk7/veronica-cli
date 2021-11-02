@@ -9,6 +9,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
 from pip._vendor.colorama import init
 from pip._vendor.colorama import Fore
 from cmd import Cmd
@@ -68,7 +69,20 @@ class Veronica(Cmd):
     SCOPES = [
         'https://www.googleapis.com/auth/gmail.readonly',
         'https://www.googleapis.com/auth/calendar.readonly',
-        "https://www.googleapis.com/auth/drive.readonly"
+        "https://www.googleapis.com/auth/drive.readonly",
+        
+    "https://www.googleapis.com/auth/contacts.readonly",
+    "https://www.googleapis.com/auth/profile.agerange.read",
+    "https://www.googleapis.com/auth/profile.emails.read",
+    "https://www.googleapis.com/auth/profile.language.read",
+    "https://www.googleapis.com/auth/user.addresses.read",
+    "https://www.googleapis.com/auth/user.birthday.read",
+    "https://www.googleapis.com/auth/user.emails.read",
+    "https://www.googleapis.com/auth/user.organization.read",
+    "https://www.googleapis.com/auth/user.phonenumbers.read",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
+    "openid"
     ]
     path = __name__
     env = defaultdict()  # or dict {}
@@ -134,6 +148,14 @@ class Veronica(Cmd):
 
     def onecmd(self, line: str) -> bool:
         return super().onecmd(line)
+
+    def do_intelligence(self,line):
+        try:
+            creds = self.vx_google_setup(self,self.SCOPES)
+        except TypeError:
+            creds = self.vx_google_setup(self.SCOPES)
+        service = build('people', 'v3', credentials=creds)
+        print(service.people().get(resourceName="people/me").execute())
 
     def precmd(self, line):
         line = line.lower()
