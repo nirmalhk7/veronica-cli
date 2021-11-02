@@ -1,19 +1,24 @@
 from veronica.config import component
 from veronica.voice import vx_print
+from googleapiclient.discovery import build
+
 
 @component
-def do_search(self,args):
+def do_search(self, args):
     """
         Search file at location, or search at Google.
         Example:
-            veronica search ~/Documents --ext txt       ===> Lists all txt files in Documents folder (recursively)
-            veronica search Red Bull Racing             ===> Queries at Google
+            veronica search partialFilename ~/Documents ===> Lists all files with name containing partialFilename  
+                locally as well as on Google Drive. If file is not available anywhere
     """
-    args= args.split(" ")
-    # for parent_path, _, filenames in os.walk(Path.home()):
-    # for f in filenames:
-    #     print(os.path.join(parent_path, f))
+    args = args.split(" ")
 
-    vx_print("Search: WIP",speak=False)
+    try:
+        creds = self.vx_google_setup(self, self.SCOPES)
+    except TypeError:
+        creds = self.vx_google_setup(self.SCOPES)
 
-    pass
+    service = build('drive', 'v3', credentials=creds)
+    results = service.files().list().execute()
+    
+    # print(results["files"])
