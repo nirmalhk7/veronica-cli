@@ -1,6 +1,6 @@
 from veronica.voice import vx_print
 from googleapiclient.discovery import build
-import base64
+from datetime import datetime, timezone
 
 def do_email(self, args):
     """
@@ -18,12 +18,6 @@ def do_email(self, args):
         labelIds=["INBOX", "IMPORTANT",
                   "UNREAD"]).execute().get('messages', [])
     
-    print(service.users().messages().list(
-        userId='me',
-        includeSpamTrash=False,
-        maxResults=20,
-        labelIds=["INBOX", "IMPORTANT",
-                  "UNREAD"]).execute())
     allmail=[]
     for i in results:
         mailinfo= service.users().messages().get(
@@ -33,9 +27,12 @@ def do_email(self, args):
         mailinfo=[i for i in mailinfo if i["name"] in ["Subject","From","Date"]]
         
         mailinfo_hx={}
-        for i in mailinfo:
-            mailinfo_hx[i["name"]]=i["value"]
+        for j in mailinfo:
+            mailinfo_hx[j["name"]]=j["value"]
+
         mailinfo_hx["id"]=i["id"]
+        if "Date" in mailinfo_hx:
+            mailinfo_hx["Date"]= datetime.strptime(mailinfo_hx["Date"],"%a, %d %b %Y %H:%M:%S %z (%Z)").replace(tzinfo=timezone.utc).astimezone(tz=None)
         allmail.append(mailinfo_hx)
     print(allmail)
         

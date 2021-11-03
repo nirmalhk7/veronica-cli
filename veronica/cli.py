@@ -62,7 +62,6 @@ for pos, offset in synsets:
     config_dictionary[wn.synset_from_pos_and_offset(
         pos, offset)] = synsets[(pos, offset)]
 
-
 class Veronica(Cmd):
 
     SCOPES = [
