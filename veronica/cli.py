@@ -72,13 +72,10 @@ class Veronica(Cmd):
         "https://www.googleapis.com/auth/drive.readonly",
         
     "https://www.googleapis.com/auth/contacts.readonly",
-    "https://www.googleapis.com/auth/profile.agerange.read",
-    "https://www.googleapis.com/auth/profile.emails.read",
     "https://www.googleapis.com/auth/profile.language.read",
     "https://www.googleapis.com/auth/user.addresses.read",
     "https://www.googleapis.com/auth/user.birthday.read",
     "https://www.googleapis.com/auth/user.emails.read",
-    "https://www.googleapis.com/auth/user.organization.read",
     "https://www.googleapis.com/auth/user.phonenumbers.read",
     "https://www.googleapis.com/auth/userinfo.email",
     "https://www.googleapis.com/auth/userinfo.profile",
@@ -154,8 +151,9 @@ class Veronica(Cmd):
             creds = self.vx_google_setup(self,self.SCOPES)
         except TypeError:
             creds = self.vx_google_setup(self.SCOPES)
-        service = build('people', 'v3', credentials=creds)
-        print(service.people().get(resourceName="people/me").execute())
+        print(3)
+        service = build('people', 'v1', credentials=creds)
+        print(service.people().get(resourceName="people/me",personFields="addresses,ageRanges,biographies,birthdays,calendarUrls,clientData,coverPhotos,emailAddresses,events,externalIds,genders,imClients,interests,locales,locations,memberships,metadata,miscKeywords,names,nicknames,occupations,organizations,phoneNumbers,photos,relations,sipAddresses,skills,urls,userDefined").execute())
 
     def precmd(self, line):
         line = line.lower()
