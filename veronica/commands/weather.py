@@ -1,6 +1,5 @@
 import geocoder
 import requests
-from pip._vendor.colorama import Fore
 from veronica.config import component
 
 from veronica.voice import vx_print
@@ -26,7 +25,7 @@ def do_weather(self,args):
             if(data['currently']['precipProbability']>0.5):
                 res += " Expect a "+str(data['currently']['precipProbability']*100)+"% chance of "+data['currently']['precipType']+"."
             vx_print("")
-            vx_print(res,color=Fore.GREEN)
+            vx_print(res)
             vx_print("")
         else:
             vx_print("Error: "+response.status_code)

@@ -9,8 +9,6 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from pip._vendor.colorama import init
-from pip._vendor.colorama import Fore
 from cmd import Cmd
 import getpass
 import pkg_resources
@@ -190,10 +188,6 @@ class Veronica(Cmd):
 
 
 def main():
-    """Console script for veronica."""
-    # sentry_sdk.init("https://3ac0bcf6b7c94dceba16841163e807d0@o410546.ingest.sentry.io/5299322")
-
-    init(autoreset=True)
     prompt = Veronica()
     prompt.prompt = 'veronica> '
     prompt.ruler = '-'
@@ -201,7 +195,5 @@ def main():
     if (len(args._)):
         Veronica.precmd(Veronica, " ".join(args._))
     else:
-        prompt.cmdloop(Fore.YELLOW + 'Welcome ' +
-                       getpass.getuser().capitalize() +
-                       "! Veronica at your service ...")
+        prompt.cmdloop("Welcome {}! Veronica at your service ...".format(getpass.getuser().capitalize()))
     return 0

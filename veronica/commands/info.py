@@ -1,6 +1,5 @@
 import geocoder
 import requests
-from pip._vendor.colorama import Fore
 from veronica.config import component
 from rich import print
 from veronica.voice import vx_print
