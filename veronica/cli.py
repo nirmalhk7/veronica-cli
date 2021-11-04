@@ -6,7 +6,8 @@ from collections import defaultdict
 from typing import Type
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
-
+from rich.panel import Panel
+from rich import print
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from cmd import Cmd
@@ -42,10 +43,8 @@ elif (args.log == "DEBUG"):
 elif (args.log == "NOTSET"):
     level = logging.NOTSET
 
-logging.basicConfig(
-    level=level or logging.ERROR,
-    filename=Path.home() /
-    "veronica.log")
+logging.basicConfig(level=level or logging.ERROR,
+                    filename=Path.home() / "veronica.log")
 
 download('stopwords', quiet=True)
 download('omw', quiet=True)
@@ -60,6 +59,7 @@ for pos, offset in synsets:
     config_dictionary[wn.synset_from_pos_and_offset(
         pos, offset)] = synsets[(pos, offset)]
 
+
 class Veronica(Cmd):
 
     SCOPES = [
@@ -71,7 +71,6 @@ class Veronica(Cmd):
     env = defaultdict()  # or dict {}
     username = getpass.getuser().capitalize()
     console = Console()
-    
 
     from veronica.commands.calc import do_calc
     from veronica.commands.hi import do_hi
@@ -117,10 +116,14 @@ class Veronica(Cmd):
             # dumps(settings, indent = 4)
         return creds
 
-    def cmdloop(self, intro) -> None:
+    def cmdloop(self, intro=None) -> None:
         self.vx_setup()
+        print(
+            Panel.fit("Welcome {}! Veronica at your service ...".format(
+                getpass.getuser().capitalize())))
+        
         # vx_speak('Welcome {}! Veronica at your service ...'.format(getpass.getuser().capitalize()))
-        super().cmdloop(intro=intro)
+        super().cmdloop(intro="")
 
     def emptyline(self):
         return None
@@ -174,7 +177,7 @@ class Veronica(Cmd):
                                          " ".join(processed_search_query[1:]))
                 vx_empty_stack()
             except TypeError:
-                
+
                 # If command is passed through Veronica CLI
                 getattr(self,
                         "do_" + command)(" ".join(processed_search_query[1:]))
@@ -194,5 +197,5 @@ def main():
     if (len(args._)):
         Veronica.precmd(Veronica, " ".join(args._))
     else:
-        prompt.cmdloop("Welcome {}! Veronica at your service ...".format(getpass.getuser().capitalize()))
+        prompt.cmdloop()
     return 0

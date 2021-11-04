@@ -7,7 +7,6 @@ from googleapiclient.discovery import build
 import os
 from datetime import datetime, timedelta
 from rich.table import Table
-from rich import print
 
 @component
 def do_calendar(self, args):

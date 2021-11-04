@@ -1,6 +1,7 @@
 from veronica.voice import vx_print
 from googleapiclient.discovery import build
 from datetime import datetime, timezone
+from rich.table import Table
 
 def do_email(self, args):
     """
@@ -19,6 +20,11 @@ def do_email(self, args):
                   "UNREAD"]).execute().get('messages', [])
     
     allmail=[]
+    table= Table()
+    table.add_column("From")
+    table.add_column("Subject")
+    table.add_column("Date")
+    
     for i in results:
         mailinfo= service.users().messages().get(
             userId='me',
@@ -32,8 +38,15 @@ def do_email(self, args):
 
         mailinfo_hx["id"]=i["id"]
         if "Date" in mailinfo_hx:
-            mailinfo_hx["Date"]= datetime.strptime(mailinfo_hx["Date"],"%a, %d %b %Y %H:%M:%S %z (%Z)").replace(tzinfo=timezone.utc).astimezone(tz=None)
+            mailinfo_hx["Date"]= datetime.strptime(mailinfo_hx["Date"],"%a, %d %b %Y %H:%M:%S %z").replace(tzinfo=timezone.utc).astimezone(tz=None)
         allmail.append(mailinfo_hx)
-    print(allmail)
-        
+        rootlink="https://mail.google.com/mail/u/0/#inbox/"+mailinfo_hx["id"]
+        table.add_row(
+            "[link={}]{}[/link]".format(rootlink,mailinfo_hx["From"]),
+            "[link={}]{}[/link]".format(rootlink,mailinfo_hx["Subject"]),
+            "[link={}]{}[/link]".format(rootlink,str(mailinfo_hx["Date"]))
+        )
+
+    self.console.print(table)
+
     pass
