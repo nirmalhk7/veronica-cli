@@ -1,8 +1,7 @@
 import geocoder
 import requests
-from pip._vendor.colorama import Fore
 from veronica.config import component
-
+from rich import print
 from veronica.voice import vx_print
 
 @component
@@ -50,4 +49,4 @@ def do_info(self,args):
                 except IndexError:
                     vx_print("Sorry, no data available!")
         else:
-            print("Error: {}".format(str(response)))
+            vx_print("Error: {}".format(str(response)),speakText="Sorry, there's been some kind of an error.")

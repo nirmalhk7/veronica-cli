@@ -9,8 +9,6 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from pip._vendor.colorama import init
-from pip._vendor.colorama import Fore
 from cmd import Cmd
 import getpass
 import pkg_resources
@@ -20,7 +18,7 @@ from nltk.corpus import stopwords, wordnet as wn
 import logging
 from pathlib import Path
 import pickle
-from os import system
+from rich.console import Console
 
 from veronica.voice import vx_empty_stack, vx_speak
 
@@ -47,7 +45,7 @@ elif (args.log == "NOTSET"):
 logging.basicConfig(
     level=level or logging.ERROR,
     filename=Path.home() /
-    "veronica.log" if args.logfile and args.logfile != "false" else None)
+    "veronica.log")
 
 download('stopwords', quiet=True)
 download('omw', quiet=True)
@@ -73,6 +71,8 @@ class Veronica(Cmd):
     path = __name__
     env = defaultdict()  # or dict {}
     username = getpass.getuser().capitalize()
+    console = Console()
+    
 
     from veronica.commands.calc import do_calc
     from veronica.commands.hi import do_hi
@@ -175,8 +175,8 @@ class Veronica(Cmd):
                                          " ".join(processed_search_query[1:]))
                 vx_empty_stack()
             except TypeError:
+                
                 # If command is passed through Veronica CLI
-                self.vx_setup()
                 getattr(self,
                         "do_" + command)(" ".join(processed_search_query[1:]))
             except AttributeError:
@@ -188,10 +188,6 @@ class Veronica(Cmd):
 
 
 def main():
-    """Console script for veronica."""
-    # sentry_sdk.init("https://3ac0bcf6b7c94dceba16841163e807d0@o410546.ingest.sentry.io/5299322")
-
-    init(autoreset=True)
     prompt = Veronica()
     prompt.prompt = 'veronica> '
     prompt.ruler = '-'
@@ -199,12 +195,5 @@ def main():
     if (len(args._)):
         Veronica.precmd(Veronica, " ".join(args._))
     else:
-        prompt.cmdloop(Fore.YELLOW + 'Welcome ' +
-                       getpass.getuser().capitalize() +
-                       "! Veronica at your service ...")
+        prompt.cmdloop("Welcome {}! Veronica at your service ...".format(getpass.getuser().capitalize()))
     return 0
-
-
-if __name__ == "__main__":
-    print("Main")
-    sys.exit(main())
