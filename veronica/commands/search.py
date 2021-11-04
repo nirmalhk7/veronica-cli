@@ -8,8 +8,10 @@ def do_search(self, args):
     """
         Search file at location, or search at Google.
         Example:
-            veronica search partialFilename ~/Documents ===> Lists all files with name containing partialFilename  
-                locally as well as on Google Drive. If file is not available anywhere
+            veronica search partialFilename ~/Documents:
+                Lists all files with name containing partialFilename  
+                locally as well as on Google Drive 
+                if file is not available anywhere
     """
     args = args.split(" ")
 
@@ -20,5 +22,4 @@ def do_search(self, args):
 
     service = build('drive', 'v3', credentials=creds)
     results = service.files().list().execute()
-    
-    # print(results["files"])
+    print(results["files"])
