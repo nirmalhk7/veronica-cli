@@ -1,5 +1,8 @@
 geocoder==1.38.1
+google_api_python_client==2.29.0
+google_auth_oauthlib==0.4.6
 nltk==3.6.5
 pip==20.2.3
+protobuf==3.19.1
 requests==2.25.0
 setuptools==50.3.0

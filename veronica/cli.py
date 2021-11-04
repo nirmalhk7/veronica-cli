@@ -20,7 +20,7 @@ from nltk.corpus import stopwords, wordnet as wn
 import logging
 from pathlib import Path
 import pickle
-from os import system
+from rich.console import Console
 
 from veronica.voice import vx_empty_stack, vx_speak
 
@@ -47,7 +47,7 @@ elif (args.log == "NOTSET"):
 logging.basicConfig(
     level=level or logging.ERROR,
     filename=Path.home() /
-    "veronica.log" if args.logfile and args.logfile != "false" else None)
+    "veronica.log")
 
 download('stopwords', quiet=True)
 download('omw', quiet=True)
@@ -73,6 +73,8 @@ class Veronica(Cmd):
     path = __name__
     env = defaultdict()  # or dict {}
     username = getpass.getuser().capitalize()
+    console = Console()
+    
 
     from veronica.commands.calc import do_calc
     from veronica.commands.hi import do_hi
@@ -175,8 +177,8 @@ class Veronica(Cmd):
                                          " ".join(processed_search_query[1:]))
                 vx_empty_stack()
             except TypeError:
+                
                 # If command is passed through Veronica CLI
-                self.vx_setup()
                 getattr(self,
                         "do_" + command)(" ".join(processed_search_query[1:]))
             except AttributeError:
@@ -203,8 +205,3 @@ def main():
                        getpass.getuser().capitalize() +
                        "! Veronica at your service ...")
     return 0
-
-
-if __name__ == "__main__":
-    print("Main")
-    sys.exit(main())

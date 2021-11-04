@@ -1,11 +1,14 @@
 from collections import deque 
 from os import system
-import re
+from rich import print
+
 
 print_stack= deque()
-def vx_print(arg, color="", speak=True):
-    if(speak):
+def vx_print(arg, color="", speak=True, speakText=None):
+    if(speak and not speakText):
         print_stack.append(str(arg))
+    elif(speak and speakText):
+        print_stack.append(str(speakText))
     print(color+arg)
 
 def vx_speak(speak_str):
