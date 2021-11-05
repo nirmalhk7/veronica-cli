@@ -1,14 +1,8 @@
 from random import randint
-from veronica.config import component
+from veronica.config import unit
 
 from veronica.voice import vx_print
 
-@component
+@unit(synonyms=["hey"])
 def do_hi(self,args):
-    response = ["Hey!",
-        ""
-        "Greetings "+self.username+", how can I help you?",
-        "Good Morning "+self.username+", what can I do for you today?",
-        "Veronica at your service, sir. What shall I do today?"
-    ]
-    vx_print(response[randint(0,len(response)-1)])
+    vx_print(self.intents["hi"][randint(0,len(self.intents["hi"])-1)].replace("ABC",self.username))

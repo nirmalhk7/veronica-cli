@@ -22,30 +22,7 @@ from rich.console import Console
 
 from veronica.voice import vx_empty_stack, vx_speak
 
-parser = argparse.ArgumentParser()
-parser.add_argument('_', nargs='*')
-parser.add_argument('-l', '--log', default=logging.DEBUG, help="Logging Level")
-parser.add_argument('-lf', '--logfile', default=True, help="Logging Level")
-args = parser.parse_args()
 
-level = None
-if (args.log == "CRITICAL"):
-    level = logging.CRITICAL
-elif (args.log == "ERROR"):
-    level = logging.ERROR
-elif (args.log == "WARNING"):
-    level = logging.WARNING
-elif (args.log == "INFO"):
-    level = logging.INFO
-elif (args.log == "DEBUG"):
-    level = logging.DEBUG
-elif (args.log == "NOTSET"):
-    level = logging.NOTSET
-
-logging.basicConfig(
-    level=level or logging.ERROR,
-    filename=Path.home() /
-    "veronica.log")
 
 download('stopwords', quiet=True)
 download('omw', quiet=True)
@@ -62,7 +39,6 @@ for pos, offset in synsets:
 
 
 class Veronica(Cmd):
-
     SCOPES = [
         'https://www.googleapis.com/auth/gmail.readonly',
         'https://www.googleapis.com/auth/calendar.readonly',
@@ -72,7 +48,7 @@ class Veronica(Cmd):
     env = defaultdict()  # or dict {}
     username = getpass.getuser().capitalize()
     console = Console()
-    
+    intents= json.loads(pkg_resources.resource_string(__name__,"/data/intents.json").decode("utf-8","ignore"))
 
     from veronica.commands.calc import do_calc
     from veronica.commands.hi import do_hi
@@ -84,6 +60,8 @@ class Veronica(Cmd):
     from veronica.commands.calendar import do_calendar
     from veronica.commands.search import do_search
     from veronica.commands.query import do_query
+    from veronica.commands.exit import do_exit
+    from veronica.commands.great import do_great
 
     def vx_setup(self):
         with open(Path.home() / ".veronica.env") as f:
@@ -115,7 +93,6 @@ class Veronica(Cmd):
             settings["google"]["token"] = json.loads(creds.to_json())
             with open(Path.home() / "veronica.settings.json", "w") as f:
                 settings = json.dump(settings, f, indent=4)
-            # dumps(settings, indent = 4)
         return creds
 
     def cmdloop(self, intro) -> None:
@@ -125,9 +102,6 @@ class Veronica(Cmd):
 
     def emptyline(self):
         return None
-
-    def do_exit(self, args):
-        exit()
 
     def postcmd(self, stop: bool, line: str):
         vx_empty_stack()
@@ -139,19 +113,20 @@ class Veronica(Cmd):
         line = line.lower()
         search_query = word_tokenize(line)
         processed_search_query = []
+        logging.debug("Removing stopwords ...")
         for token in search_query:
             if (token not in stop_words):
                 processed_search_query.append(token)
         logging.debug("Preprocessed query: {}".format(
             " ".join(processed_search_query)))
 
-        if (not processed_search_query):
-            return " ".join(processed_search_query)
-
-        if ("do_" + " ".join(processed_search_query)
+        # If all words are stopwords, ignore :shrug:
+        # But if the query term matches one of our unit names, then directly call
+        if (not processed_search_query or "do_" + processed_search_query[0]
                 in config_dictionary.values()):
             return " ".join(processed_search_query)
 
+        logging.debug("Checking for similar words/ synonyms ...")
         usercmd_sysnets = wn.synsets(processed_search_query[0])
         similarity = {}
         for net in usercmd_sysnets:
@@ -161,7 +136,7 @@ class Veronica(Cmd):
                                  key=similarity.__getitem__,
                                  reverse=True)
 
-        if (similarity_list and similarity[similarity_list[0]] > 0.85):
+        if (similarity_list and similarity[similarity_list[0]] > 0.75):
             max_similarity_key = similarity_list[0]
             command = config_dictionary[max_similarity_key[0]]
             logging.info("Max similarity: {} at {}".format(
@@ -188,6 +163,28 @@ class Veronica(Cmd):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-l', '--log', default=logging.DEBUG, help="Logging Level")
+    parser.add_argument('-lf', '--logfile', default=True, help="Logging Levl")
+    parser.add_argument('_', nargs='*',help=", ".join([attr[3:] for attr in dir(Veronica) if attr[:3]=="do_"]))
+    args = parser.parse_args()
+
+    level = None
+    if (args.log == "CRITICAL"):
+        level = logging.CRITICAL
+    elif (args.log == "ERROR"):
+        level = logging.ERROR
+    elif (args.log == "WARNING"):
+        level = logging.WARNING
+    elif (args.log == "INFO"):
+        level = logging.INFO
+    elif (args.log == "DEBUG"):
+        level = logging.DEBUG
+    elif (args.log == "NOTSET"):
+        level = logging.NOTSET
+
+    logging.basicConfig(
+        level=level or logging.ERROR)
     prompt = Veronica()
     prompt.prompt = 'veronica> '
     prompt.ruler = '-'

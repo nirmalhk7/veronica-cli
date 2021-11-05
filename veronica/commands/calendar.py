@@ -1,7 +1,7 @@
 from json import dumps, load
 from pathlib import Path
 from typing import Type
-from veronica.config import component
+from veronica.config import unit
 from veronica.voice import vx_print
 from googleapiclient.discovery import build
 import os
@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from rich.table import Table
 from rich import print
 
-@component
+@unit
 def do_calendar(self, args):
     """
         Print upcoming 10 events from calendar.
