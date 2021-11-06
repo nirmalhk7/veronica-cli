@@ -1,9 +1,9 @@
-from veronica.config import component
+from veronica.config import unit
 from veronica.voice import vx_print
 from googleapiclient.discovery import build
 
 
-@component
+
 def do_search(self, args):
     """
         Search file at location, or search at Google.

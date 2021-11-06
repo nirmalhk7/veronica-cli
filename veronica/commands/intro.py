@@ -1,10 +1,10 @@
 from random import randint
 
-from veronica.config import component
+from veronica.config import unit
 from veronica.voice import vx_print
 
 
-@component
+
 def do_intro(self, args):
     response = [
         "I'm Veronica, your personal Linux assistant.",

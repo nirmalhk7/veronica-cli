@@ -1,13 +1,13 @@
 from collections import defaultdict
 from pathlib import Path
-from veronica.config import component
+from veronica.config import unit
 from veronica.voice import vx_print
 from json import load
 import inspect
 import webbrowser
 import re
 
-@component
+
 def do_query(self,args):
     """
         

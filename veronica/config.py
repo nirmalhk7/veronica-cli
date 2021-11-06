@@ -1,6 +1,7 @@
 
 
-def component(func):
+def unit(func,synonyms=[]):
     func_call=func.__name__
-    component.func_call=func
+    print(func_call)
+    unit.func_call=func
     return func
