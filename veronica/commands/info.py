@@ -5,7 +5,7 @@ from rich import print
 from veronica.voice import vx_print
 
 @unit
-def do_info(self,args):
+def info(self,args):
     print("Retreiving information for your query ... ")
     try:
         query,limit = args.split(':')

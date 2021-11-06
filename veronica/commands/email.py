@@ -2,7 +2,7 @@ from veronica.voice import vx_print
 from googleapiclient.discovery import build
 
 
-def do_email(self, args):
+def email(self, args):
     """
         Print upcoming latest important and unread emails
     """

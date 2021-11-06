@@ -10,7 +10,7 @@ from rich.table import Table
 from rich import print
 
 @unit
-def do_calendar(self, args):
+def calendar(self, args):
     """
         Print upcoming 10 events from calendar.
     """

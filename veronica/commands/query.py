@@ -8,7 +8,7 @@ import webbrowser
 import re
 
 @unit
-def do_query(self,args):
+def query(self,args):
     """
         
     """

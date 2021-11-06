@@ -19,10 +19,13 @@ import logging
 from pathlib import Path
 import pickle
 from rich.console import Console
+from veronica.config import units, unit
 
 from veronica.voice import vx_empty_stack, vx_speak
 
-
+for i in dir(unit):
+    if(not i.startswith("__")):
+        print(getattr(unit,i))
 
 download('stopwords', quiet=True)
 download('omw', quiet=True)
@@ -50,19 +53,6 @@ class Veronica(Cmd):
     console = Console()
     intents= json.loads(pkg_resources.resource_string(__name__,"/data/intents.json").decode("utf-8","ignore"))
 
-    from veronica.commands.calc import do_calc
-    from veronica.commands.hi import do_hi
-    from veronica.commands.info import do_info
-    from veronica.commands.intro import do_intro
-    from veronica.commands.joke import do_joke
-    from veronica.commands.weather import do_weather
-    from veronica.commands.email import do_email
-    from veronica.commands.calendar import do_calendar
-    from veronica.commands.search import do_search
-    from veronica.commands.query import do_query
-    from veronica.commands.exit import do_exit
-    from veronica.commands.great import do_great
-
     def vx_setup(self):
         with open(Path.home() / ".veronica.env") as f:
             for line in f:
@@ -73,8 +63,8 @@ class Veronica(Cmd):
                 value = int(value) if value.isdigit() else value
                 self.env[key] = value
 
-        logging.debug("Loaded env variables from {}: {}".format(
-            str(Path.home() / ".veronica.env"), str(self.env)))
+        logging.debug("Loaded env variables from {}".format(
+            str(Path.home() / ".veronica.env")))
 
     def vx_google_setup(self, SCOPES):
         with open(Path.home() / "veronica.settings.json", "r") as f:
@@ -109,7 +99,7 @@ class Veronica(Cmd):
     def onecmd(self, line: str) -> bool:
         return super().onecmd(line)
 
-    def precmd(self, line):
+    def precmd(self, line, nonCli= False):
         line = line.lower()
         search_query = word_tokenize(line)
         processed_search_query = []
@@ -118,7 +108,7 @@ class Veronica(Cmd):
             if (token not in stop_words):
                 processed_search_query.append(token)
         logging.debug("Preprocessed query: {}".format(
-            " ".join(processed_search_query)))
+            processed_search_query))
 
         # If all words are stopwords, ignore :shrug:
         # But if the query term matches one of our unit names, then directly call
@@ -132,6 +122,7 @@ class Veronica(Cmd):
         for net in usercmd_sysnets:
             for v_cmd in config_dictionary.keys():
                 similarity[(v_cmd, net)] = v_cmd.wup_similarity(net) or 0
+        
         similarity_list = sorted(similarity,
                                  key=similarity.__getitem__,
                                  reverse=True)
@@ -142,21 +133,29 @@ class Veronica(Cmd):
             logging.info("Max similarity: {} at {}".format(
                 str(max_similarity_key), similarity[similarity_list[0]]))
             logging.debug("Reprocessed command: {}".format(command))
-            try:
-                # If command is passed as argument
+            logging.debug("Query parameters: {}".format(processed_search_query[1:]))
+            if(nonCli):
                 self.vx_setup(self)
-                getattr(self,
-                        "do_" + command)(self,
-                                         " ".join(processed_search_query[1:]))
+                units[command](self, processed_search_query[1:])
                 vx_empty_stack()
-            except TypeError:
+            else:
+                units[command](self, processed_search_query[1:])
+
+            
+            # try:
+            #     # If command is passed as argument
+            #     self.vx_setup(self)
                 
-                # If command is passed through Veronica CLI
-                getattr(self,
-                        "do_" + command)(" ".join(processed_search_query[1:]))
-            except AttributeError:
-                # If wrong command is passed with attributes.
-                pass
+            #     getattr(self,"do_" + command).method(self," ".join(processed_search_query[1:]))
+            #     vx_empty_stack()
+            # except TypeError:
+                
+            #     # If command is passed through Veronica CLI
+            #     getattr(self,
+            #             "do_" + command).method(" ".join(processed_search_query[1:]))
+            # except AttributeError:
+            #     # If wrong command is passed with attributes.
+            #     pass
             return ""
         else:
             return " ".join(processed_search_query)
@@ -165,7 +164,6 @@ class Veronica(Cmd):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', '--log', default=logging.DEBUG, help="Logging Level")
-    parser.add_argument('-lf', '--logfile', default=True, help="Logging Levl")
     parser.add_argument('_', nargs='*',help=", ".join([attr[3:] for attr in dir(Veronica) if attr[:3]=="do_"]))
     args = parser.parse_args()
 
@@ -190,7 +188,7 @@ def main():
     prompt.ruler = '-'
 
     if (len(args._)):
-        Veronica.precmd(Veronica, " ".join(args._))
+        Veronica.precmd(Veronica, " ".join(args._), True)
     else:
         prompt.cmdloop("Welcome {}! Veronica at your service ...".format(getpass.getuser().capitalize()))
     return 0

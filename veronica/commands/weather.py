@@ -5,7 +5,7 @@ from veronica.config import unit
 from veronica.voice import vx_print
 
 @unit
-def do_weather(self,args):
+def weather(self,args):
     def f_to_c(x):
         return str(round((x - 32) * 5.0/9.0,2))
 
