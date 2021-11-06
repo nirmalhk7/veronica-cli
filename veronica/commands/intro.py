@@ -4,7 +4,7 @@ from veronica.config import unit
 from veronica.voice import vx_print
 
 
-@unit
+
 def do_intro(self, args):
     response = [
         "I'm Veronica, your personal Linux assistant.",

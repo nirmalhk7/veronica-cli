@@ -7,7 +7,7 @@ import inspect
 import webbrowser
 import re
 
-@unit
+
 def do_query(self,args):
     """
         

@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from rich.table import Table
 from rich import print
 
-@unit
+
 def do_calendar(self, args):
     """
         Print upcoming 10 events from calendar.
