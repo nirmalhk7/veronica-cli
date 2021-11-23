@@ -19,13 +19,11 @@ import logging
 from pathlib import Path
 import pickle
 from rich.console import Console
-
 from veronica.voice import vx_empty_stack, vx_speak
 
 
+download('wordnet', quiet=True)
 
-download('stopwords', quiet=True)
-download('omw', quiet=True)
 stop_words = set(stopwords.words('english'))
 synsets = dict(
     pickle.load(
@@ -36,6 +34,9 @@ config_dictionary = {}
 for pos, offset in synsets:
     config_dictionary[wn.synset_from_pos_and_offset(
         pos, offset)] = synsets[(pos, offset)]
+
+
+
 
 
 class Veronica(Cmd):
@@ -62,6 +63,7 @@ class Veronica(Cmd):
     from veronica.commands.query import do_query
     from veronica.commands.exit import do_exit
     from veronica.commands.great import do_great
+    from veronica.commands.new import do_new
 
     def vx_setup(self):
         with open(Path.home() / ".veronica.env") as f:
@@ -111,7 +113,7 @@ class Veronica(Cmd):
 
     def precmd(self, line):
         line = line.lower()
-        search_query = word_tokenize(line)
+        search_query = line.split(" ")
         processed_search_query = []
         logging.debug("Removing stopwords ...")
         for token in search_query:
@@ -165,7 +167,7 @@ class Veronica(Cmd):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', '--log', default=logging.DEBUG, help="Logging Level")
-    parser.add_argument('-lf', '--logfile', default=True, help="Logging Levl")
+    parser.add_argument('-lf', '--logfile', default=True, help="Logging Level")
     parser.add_argument('_', nargs='*',help=", ".join([attr[3:] for attr in dir(Veronica) if attr[:3]=="do_"]))
     args = parser.parse_args()
 
@@ -184,7 +186,12 @@ def main():
         level = logging.NOTSET
 
     logging.basicConfig(
-        level=level or logging.ERROR)
+        format='%(asctime)s %(levelname)-8s %(message)s',
+        level=level or logging.DEBUG, 
+        filename=Path.home()/"veronica.log",
+        datefmt='%Y-%m-%d %H:%M:%S')
+    logging.captureWarnings(True)
+
     prompt = Veronica()
     prompt.prompt = 'veronica> '
     prompt.ruler = '-'

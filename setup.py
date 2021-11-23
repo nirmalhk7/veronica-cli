@@ -3,6 +3,10 @@ from veronica.cli import Veronica
 import pickle
 from nltk.corpus import wordnet as wn
 
+import warnings
+warnings.filterwarnings("ignore")
+
+
 def _post_install(setup):
     method_names = [attr[3:] for attr in dir(Veronica) if attr[:3]=="do_"]
     print(method_names)
