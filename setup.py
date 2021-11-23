@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages
 from veronica.cli import Veronica
 import pickle
+from pathlib import Path
 from nltk.corpus import wordnet as wn
 
 import warnings
@@ -17,7 +18,7 @@ def _post_install(setup):
         for synset in method_synsets:
             synsets_all[(synset.name().split('.')[1],synset.offset())]=method
 
-    with open('veronica/data/command_synsets.veronica','wb') as cn:
+    with open(Path.home()/".veronica.config",'wb') as cn:
         pickle.dump(synsets_all,cn)
     
     return setup

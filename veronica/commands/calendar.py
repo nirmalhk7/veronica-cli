@@ -14,10 +14,8 @@ def do_calendar(self, args):
     """
         Print upcoming 10 events from calendar.
     """
-    try:
-        creds = self.vx_google_setup(self, self.SCOPES)
-    except TypeError:
-        creds = self.vx_google_setup(self.SCOPES)
+
+    creds = self.vx_google_setup()
     service = build('calendar', 'v3', credentials=creds)
 
     now = datetime.utcnow().isoformat() + 'Z'

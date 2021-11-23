@@ -1,4 +1,8 @@
 """Console script for veronica."""
+
+import warnings
+warnings.simplefilter("ignore", category=DeprecationWarning)
+
 import argparse
 import json
 import sys
@@ -25,10 +29,14 @@ from veronica.voice import vx_empty_stack, vx_speak
 download('wordnet', quiet=True)
 
 stop_words = set(stopwords.words('english'))
-synsets = dict(
-    pickle.load(
-        pkg_resources.resource_stream(__name__,
-                                      "data/command_synsets.veronica")))
+try:
+    synsets = dict(
+        pickle.load(
+            pkg_resources.resource_stream(__name__,
+                                        Path.home()/".veronica.config")))
+except:
+    synsets=[]
+
 
 config_dictionary = {}
 for pos, offset in synsets:
@@ -78,19 +86,20 @@ class Veronica(Cmd):
         logging.debug("Loaded env variables from {}: {}".format(
             str(Path.home() / ".veronica.env"), str(self.env)))
 
-    def vx_google_setup(self, SCOPES):
+    def vx_google_setup(self):
         with open(Path.home() / "veronica.settings.json", "r") as f:
             settings = json.load(f)
         creds = None
         if "token" in settings["google"]:
             creds = Credentials.from_authorized_user_info(
-                settings["google"]["token"], SCOPES)
+                settings["google"]["token"], self.SCOPES)
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
+        
             else:
                 flow = InstalledAppFlow.from_client_config(
-                    settings["google"]["credentials"], SCOPES)
+                    settings["google"]["credentials"], self.SCOPES)
                 creds = flow.run_local_server(port=0)
             settings["google"]["token"] = json.loads(creds.to_json())
             with open(Path.home() / "veronica.settings.json", "w") as f:
