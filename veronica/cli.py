@@ -49,9 +49,18 @@ for pos, offset in synsets:
 
 class Veronica(Cmd):
     SCOPES = [
-        'https://www.googleapis.com/auth/gmail.readonly',
+                'https://www.googleapis.com/auth/gmail.readonly',
         'https://www.googleapis.com/auth/calendar.readonly',
-        "https://www.googleapis.com/auth/drive.readonly"
+        "https://www.googleapis.com/auth/drive.readonly",
+    "https://www.googleapis.com/auth/contacts.readonly",
+    "https://www.googleapis.com/auth/profile.language.read",
+    "https://www.googleapis.com/auth/user.addresses.read",
+    "https://www.googleapis.com/auth/user.birthday.read",
+    "https://www.googleapis.com/auth/user.emails.read",
+    "https://www.googleapis.com/auth/user.phonenumbers.read",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
+    "openid"
     ]
     path = __name__
     env = defaultdict()  # or dict {}

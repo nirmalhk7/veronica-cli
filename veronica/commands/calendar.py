@@ -12,7 +12,7 @@ from rich import print
 
 def do_calendar(self, args):
     """
-        Print upcoming 10 events from calendar.
+        Print all events 72 hours ahead of current time.
     """
 
     creds = self.vx_google_setup()
@@ -25,6 +25,7 @@ def do_calendar(self, args):
     events = []
 
     table= Table()
+    table.add_column("Type")
     table.add_column("Title")
     table.add_column("Calendar")
     table.add_column("Duration")
@@ -71,6 +72,7 @@ def do_calendar(self, args):
     events.sort(key=lambda x: x["start"], reverse=True)
     for i in events:
         table.add_row(
+            "Event",
             "[{}][link={}]{}[/link][/]".format(i["color"],i["link"],i["title"]),
             "[{}]{}[/]".format(i["color"],i["calendar"]),
             "[{}]{}[/]".format(i["color"],str(i["start"]))
