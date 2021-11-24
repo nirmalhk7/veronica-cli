@@ -81,6 +81,7 @@ class Veronica(Cmd):
     from veronica.commands.exit import do_exit
     from veronica.commands.great import do_great
     from veronica.commands.new import do_new
+    from veronica.commands.list import do_list
 
     def vx_setup(self):
         with open(Path.home() / ".veronica.env") as f:

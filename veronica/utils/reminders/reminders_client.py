@@ -1,15 +1,10 @@
+from datetime import datetime, timedelta
 import json
 from typing import List, Optional
 
-import reminders_client_utils as client_utils
-from reminder import Reminder
+import veronica.utils.reminders.reminders_client_utils as client_utils
+from veronica.utils.reminders.reminder import Reminder
 
-URIs = {
-    'create': 'https://reminders-pa.clients6.google.com/v1internalOP/reminders/create',
-    'delete': 'https://reminders-pa.clients6.google.com/v1internalOP/reminders/delete',
-    'get': 'https://reminders-pa.clients6.google.com/v1internalOP/reminders/get',
-    'list': 'https://reminders-pa.clients6.google.com/v1internalOP/reminders/list'
-}
 
 HEADERS = {
     'content-type': 'application/json+protobuf',
@@ -19,8 +14,8 @@ HTTP_OK = 200
 
 
 class RemindersClient:
-    def __init__(self):
-        self.auth_http = client_utils.authenticate()
+    def __init__(self,SCOPES):
+        self.auth_http = client_utils.authenticate(SCOPES)
     
     @staticmethod
     def _report_error(response, content, func_name: str):
@@ -34,7 +29,7 @@ class RemindersClient:
         returns True upon a successful creation of a reminder
         """
         response, content = self.auth_http.request(
-            uri=URIs['create'],
+            uri='https://reminders-pa.clients6.google.com/v1internalOP/reminders/create',
             method='POST',
             body=client_utils.create_req_body(reminder),
             headers=HEADERS,
@@ -51,7 +46,7 @@ class RemindersClient:
         error occurred
         """
         response, content = self.auth_http.request(
-            uri=URIs['get'],
+            uri='https://reminders-pa.clients6.google.com/v1internalOP/reminders/get',
             method='POST',
             body=client_utils.get_req_body(reminder_id),
             headers=HEADERS,
@@ -72,7 +67,7 @@ class RemindersClient:
         Returns True upon a successful deletion
         """
         response, content = self.auth_http.request(
-            uri=URIs['delete'],
+            uri='https://reminders-pa.clients6.google.com/v1internalOP/reminders/delete',
             method='POST',
             body=client_utils.delete_req_body(reminder_id),
             headers=HEADERS,
@@ -83,15 +78,15 @@ class RemindersClient:
             self._report_error(response, content, 'delete_reminder')
             return False
     
-    def list_reminders(self, num_reminders: int) -> Optional[List[Reminder]]:
+    def list_reminders(self: int,hours_upto) -> Optional[List[Reminder]]:
         """
         returns a list of the last num_reminders created reminders, or
         None if an error occurred
         """
         response, content = self.auth_http.request(
-            uri=URIs['list'],
+            uri='https://reminders-pa.clients6.google.com/v1internalOP/reminders/list',
             method='POST',
-            body=client_utils.list_req_body(num_reminders=num_reminders),
+            body=client_utils.list_req_body(num_reminders=2500),
             headers=HEADERS,
         )
         if response.status == HTTP_OK:
@@ -103,7 +98,9 @@ class RemindersClient:
                 client_utils.build_reminder(reminder_dict)
                 for reminder_dict in reminders_dict_list
             ]
-            return reminders
+            return [
+                i for i in reminders if datetime.now() < i["start"] < datetime.now() + timedelta(hours=hours_upto)
+            ]
         else:
             self._report_error(response, content, 'list_reminders')
             return None

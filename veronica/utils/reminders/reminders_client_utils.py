@@ -8,13 +8,14 @@ from oauth2client import tools
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.file import Storage
 
-from reminder import Reminder
+from pathlib import Path
+from veronica.utils.reminders.reminder import Reminder
 
-APP_KEYS_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'app_keys.json')
-USER_OAUTH_DATA_FILE = os.path.expanduser('~/.google-reminders-cli-oauth')
+# APP_KEYS_FILE = 
+USER_OAUTH_DATA_FILE = os.path.expanduser('~/veronica.reminders.json')
 
 
-def authenticate() -> httplib2.Http:
+def authenticate(SCOPE) -> httplib2.Http:
     """
     returns an Http instance that already contains the user credentials and is
     ready to make requests to alter user data.
@@ -22,17 +23,17 @@ def authenticate() -> httplib2.Http:
     On the first time, this function will open the browser so that the user can
     grant it access to his data
     """
-    with open(APP_KEYS_FILE) as f:
+    with open(Path.home()/"veronica.settings.json") as f:
         app_keys = json.load(f)
     storage = Storage(USER_OAUTH_DATA_FILE)
     credentials = storage.get()
     if credentials is None or credentials.invalid:
         credentials = tools.run_flow(
             flow=OAuth2WebServerFlow(
-                client_id=app_keys['APP_CLIENT_ID'],
-                client_secret=app_keys['APP_CLIENT_SECRET'],
+                client_id=app_keys['google']['credentials']['installed']['client_id'],
+                client_secret=app_keys['google']['credentials']['installed']['client_secret'],
                 scope=['https://www.googleapis.com/auth/reminders'],
-                user_agent='google reminders cli tool',
+                user_agent='veronica-cli',
             ),
             storage=storage,
             flags=tools.argparser.parse_args([]),
@@ -125,16 +126,17 @@ def build_reminder(reminder_dict: dict) -> Optional[Reminder]:
         hour = r['5']['4']['1']
         minute = r['5']['4']['2']
         second = r['5']['4']['3']
-        creation_timestamp_msec = int(r['18'])
-        done = '8' in r and r['8'] == 1
         
-        return Reminder(
-            id=id,
-            title=title,
-            dt=datetime(year, month, day, hour, minute, second),
-            creation_timestamp_msec=creation_timestamp_msec,
-            done=done,
-        )
+        done = '8' in r and r['8'] == 1
+
+    
+        return {
+            "title": title+" (done)" if done else title,
+            "start": datetime(year, month, day, hour, minute, second),
+            "link": "https://calendar.google.com",
+            "color": "#dc143c",
+            "calendar": "Reminders"
+        }
     
     except KeyError:
         print('build_reminder failed: unrecognized reminder dictionary format')

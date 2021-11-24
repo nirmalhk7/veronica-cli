@@ -106,32 +106,33 @@ The TIME argument string can be in many formats such as
 '''
 
 
-def parse_args():
-    """
-    parse and return the program arguments
-    """
-    parser = argparse.ArgumentParser(description='Google reminders cli',
-                                     epilog=time_string_explain,
-                                     formatter_class=argparse.RawTextHelpFormatter)
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-i', action='store_true', dest='interactive',
-                       help='create a reminder by entering details interactively')
-    group.add_argument('-c', nargs=2, metavar=('TITLE', 'TIME'), dest='create',
-                       help='create a reminder with the given title and time')
-    group.add_argument('-g', metavar='<id>', dest='get',
-                       help='get reminder information by ID')
-    group.add_argument('-d', metavar='<id>', dest='delete',
-                       help='delete reminder by ID')
-    group.add_argument('-l', type=int, metavar='N', dest='list',
-                       help='list the last N created reminders, for a positive integer N')
+# def parse_args():
+#     """
+#     parse and return the program arguments
+#     """
+#     parser = argparse.ArgumentParser(description='Google reminders cli',
+#                                      epilog=time_string_explain,
+#                                      formatter_class=argparse.RawTextHelpFormatter)
+#     group = parser.add_mutually_exclusive_group(required=True)
+#     group.add_argument('-i', action='store_true', dest='interactive',
+#                        help='create a reminder by entering details interactively')
+#     group.add_argument('-c', nargs=2, metavar=('TITLE', 'TIME'), dest='create',
+#                        help='create a reminder with the given title and time')
+#     group.add_argument('-g', metavar='<id>', dest='get',
+#                        help='get reminder information by ID')
+#     group.add_argument('-d', metavar='<id>', dest='delete',
+#                        help='delete reminder by ID')
+#     group.add_argument('-l', type=int, metavar='N', dest='list',
+#                        help='list the last N created reminders, for a positive integer N')
     
-    return parser.parse_args()
+
+#     return parser.parse_args()
 
 
-def main():
-    args = parse_args()
-    invoke_operation(args)
+# def main():
+#     args = parse_args()
+#     invoke_operation(args)
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
