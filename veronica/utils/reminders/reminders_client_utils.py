@@ -1,3 +1,7 @@
+"""
+Taken from https://github.com/jonahar/google-reminders-cli and slightly adapted for use here.
+"""
+
 import json
 import os
 from datetime import datetime, timedelta
@@ -42,7 +46,7 @@ def authenticate(SCOPE) -> httplib2.Http:
     return auth_http
 
 
-def create_req_body(reminder: Reminder) -> str:
+def create_req_body(reminder) -> str:
     """
     returns the body of a create-reminder request
     """
@@ -51,21 +55,21 @@ def create_req_body(reminder: Reminder) -> str:
             '1': 7
         },
         '3': {
-            '2': reminder.id
+            '2': reminder["id"]
         },
         '4': {
             '1': {
-                '2': reminder.id
+                '2': reminder["id"]
             },
-            '3': reminder.title,
+            '3': reminder["title"],
             '5': {
-                '1': reminder.dt.year,
-                '2': reminder.dt.month,
-                '3': reminder.dt.day,
+                '1': reminder["dt"].year,
+                '2': reminder["dt"].month,
+                '3': reminder["dt"].day,
                 '4': {
-                    '1': reminder.dt.hour,
-                    '2': reminder.dt.minute,
-                    '3': reminder.dt.second,
+                    '1': reminder["dt"].hour,
+                    '2': reminder["dt"].minute,
+                    '3': reminder["dt"].second,
                 }
             },
             '8': 0

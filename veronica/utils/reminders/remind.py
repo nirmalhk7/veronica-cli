@@ -1,3 +1,7 @@
+"""
+Taken from https://github.com/jonahar/google-reminders-cli and slightly adapted for use here.
+"""
+
 #!/usr/bin/env python3
 
 import argparse

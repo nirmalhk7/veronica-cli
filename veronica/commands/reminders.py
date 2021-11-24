@@ -1,5 +1,9 @@
 from rich.table import Table
+from rich.prompt import Prompt, Confirm
 from veronica.utils.reminders.reminders_client import RemindersClient
+from datetime import date
+from veronica.voice import vx_print
+from dateutil import parser
 
 def list_reminders(params):
     client= RemindersClient(params["SCOPES"])
@@ -22,3 +26,16 @@ def do_reminders(self,line):
             "[{}]{}[/]".format(reminder["color"], str(reminder["start"]))
         )
     self.console.print(table)
+
+def do_remind(self,line):
+    client= RemindersClient(self.SCOPES)
+    dt= Prompt.ask("When do you want this to be reminded?",default=str(date.today()))
+    dt= parser.parse(dt)
+    print(self.ruler*50)
+    print("Title: {}".format(line))
+    print("Timestamp: {}\n".format(dt))
+    if(Confirm.ask("Confirm?", default="y")):
+        reminder = client.create_reminder(dt,line)
+        if(reminder):
+            vx_print("Duly noted.")
+    return

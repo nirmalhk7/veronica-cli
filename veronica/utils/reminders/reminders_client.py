@@ -1,10 +1,13 @@
+"""
+Taken from https://github.com/jonahar/google-reminders-cli and slightly adapted for use here.
+"""
+
 from datetime import datetime, timedelta
 import json
 from typing import List, Optional
 
 import veronica.utils.reminders.reminders_client_utils as client_utils
-from veronica.utils.reminders.reminder import Reminder
-
+from veronica.utils.reminders.reminder import Reminder, gen_id
 
 HEADERS = {
     'content-type': 'application/json+protobuf',
@@ -23,7 +26,7 @@ class RemindersClient:
         print(f'    status code: {response.status}')
         print(f'    content: {content}')
     
-    def create_reminder(self, reminder: Reminder) -> bool:
+    def create_reminder(self, dt, title) -> bool:
         """
         send a 'create reminder' request.
         returns True upon a successful creation of a reminder
@@ -31,7 +34,11 @@ class RemindersClient:
         response, content = self.auth_http.request(
             uri='https://reminders-pa.clients6.google.com/v1internalOP/reminders/create',
             method='POST',
-            body=client_utils.create_req_body(reminder),
+            body=client_utils.create_req_body({
+                "dt": dt,
+                "title": title,
+                "id": gen_id()
+            }),
             headers=HEADERS,
         )
         if response.status == HTTP_OK:
@@ -39,27 +46,6 @@ class RemindersClient:
         else:
             self._report_error(response, content, 'create_reminder')
             return False
-    
-    def get_reminder(self, reminder_id: str) -> Optional[Reminder]:
-        """
-        retrieve information about the reminder with the given id. None if an
-        error occurred
-        """
-        response, content = self.auth_http.request(
-            uri='https://reminders-pa.clients6.google.com/v1internalOP/reminders/get',
-            method='POST',
-            body=client_utils.get_req_body(reminder_id),
-            headers=HEADERS,
-        )
-        if response.status == HTTP_OK:
-            content_dict = json.loads(content.decode('utf-8'))
-            if content_dict == {}:
-                print(f'Couldn\'t find reminder with id={reminder_id}')
-                return None
-            reminder_dict = content_dict['1'][0]
-            return client_utils.build_reminder(reminder_dict=reminder_dict)
-        else:
-            self._report_error(response, content, 'get_reminder')
     
     def delete_reminder(self, reminder_id: str) -> bool:
         """
