@@ -80,7 +80,6 @@ class Veronica(Cmd):
     from veronica.commands.query import do_query
     from veronica.commands.exit import do_exit
     from veronica.commands.great import do_great
-    from veronica.commands.new import do_new
     from veronica.commands.list import do_list
     from veronica.commands.reminders import do_remind
 
