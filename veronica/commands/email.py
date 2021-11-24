@@ -18,10 +18,10 @@ def do_email(self, args):
         labelIds=["INBOX", "IMPORTANT",
                   "UNREAD"]).execute().get('messages', [])
     
-    for i in results:
-        mail= service.users().messages().get(
-            userId='me',
-            id=i["id"]
-        ).execute().get("payload",[])
-        print(i["id"], mail)
-    pass
+    print(results)
+    # for i in results:
+    #     mail= service.users().messages().get(
+    #         userId='me',
+    #         id=i["id"]
+    #     ).execute().get("payload",[])
+    #     print(i["id"], mail)
