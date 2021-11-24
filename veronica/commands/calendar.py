@@ -15,11 +15,12 @@ def list_calendar(google_setup):
     service = build('calendar', 'v3', credentials=creds)
 
     now = datetime.utcnow().isoformat() + 'Z'
-    maxLimit = (datetime.utcnow() + timedelta(hours=72)).isoformat() + 'Z'
+    maxLimit = (datetime.utcnow() + timedelta(hours=720)).isoformat() + 'Z'
 
     calendars = service.calendarList().list().execute().get("items", [])
     events = []
 
+    # TODO: Adjust for recurrrence, hangoutLink
     for calendar in calendars:
         if (calendar.get("selected", False) == True):
             cal_events = service.events().list(calendarId=calendar["id"],
@@ -27,6 +28,7 @@ def list_calendar(google_setup):
                                                timeMax=maxLimit,
                                                maxResults=2500).execute().get(
                                                    'items', [])
+            
             for cal_event in cal_events:
                 new_event = {
                     "link":

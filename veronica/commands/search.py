@@ -6,7 +6,7 @@ from googleapiclient.discovery import build
 
 def do_search(self, args):
     """
-        Search file at location, or search at Google.
+        Search file at location, or search in Google Drive.
         Example:
             veronica search partialFilename ~/Documents:
                 Lists all files with name containing partialFilename  

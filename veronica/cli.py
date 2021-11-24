@@ -77,7 +77,7 @@ class Veronica(Cmd):
     from veronica.commands.email import do_email
     from veronica.commands.calendar import do_calendar
     from veronica.commands.search import do_search
-    from veronica.commands.query import do_query
+    from veronica.commands.query import do_store
     from veronica.commands.exit import do_exit
     from veronica.commands.great import do_great
     from veronica.commands.list import do_list

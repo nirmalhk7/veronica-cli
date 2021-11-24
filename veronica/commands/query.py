@@ -8,11 +8,13 @@ import webbrowser
 import re
 
 
-def do_query(self,args):
+def do_store(self,args):
     """
-        
+        Veronica inbuilt key value store.
+        USAGE:
+        > store [list|create|delete|update]    
     """
-    settings= load(open(Path.home()/"veronica.settings.json","r+"))[inspect.stack()[0][3][3:]]
+
     url_regex = re.compile(
             r'^(?:http|ftp)s?://' # http:// or https://
             r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...
@@ -23,7 +25,7 @@ def do_query(self,args):
     def invalid_command():
         return "Invalid command. Try running 'help'"
 
-    def query_get(key):
+    def store_get(key):
         if(" ".join(args[1:]) not in settings):
             vx_print("Sorry, wrong key.")
             return
@@ -33,14 +35,14 @@ def do_query(self,args):
         else:
             print(key)
         pass
-    def query_list(key):
+    def store_list(key):
         for i in settings.keys():
             print("\t{}".format(i))
         pass
-    def query_create(key):
+    def store_create(key):
         pass
-    def query_update(key):
+    def store_update(key):
         pass
-    def query_delete(key):
+    def store_delete(key):
         pass
     print("")
