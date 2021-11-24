@@ -16,9 +16,9 @@ def do_search(self, args):
     args = args.split(" ")
 
     try:
-        creds = self.vx_google_setup(self, self.SCOPES)
+        creds = self.vx_google_setup(self)
     except TypeError:
-        creds = self.vx_google_setup(self.SCOPES)
+        creds = self.vx_google_setup()
 
     service = build('drive', 'v3', credentials=creds)
     results = service.files().list().execute()

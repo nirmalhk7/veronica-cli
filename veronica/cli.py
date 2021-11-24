@@ -1,4 +1,8 @@
 """Console script for veronica."""
+
+import warnings
+warnings.simplefilter("ignore", category=DeprecationWarning)
+
 import argparse
 import json
 import sys
@@ -19,18 +23,20 @@ import logging
 from pathlib import Path
 import pickle
 from rich.console import Console
-
 from veronica.voice import vx_empty_stack, vx_speak
 
 
+download('wordnet', quiet=True)
 
-download('stopwords', quiet=True)
-download('omw', quiet=True)
 stop_words = set(stopwords.words('english'))
-synsets = dict(
-    pickle.load(
-        pkg_resources.resource_stream(__name__,
-                                      "data/command_synsets.veronica")))
+try:
+    synsets = dict(
+        pickle.load(
+            pkg_resources.resource_stream(__name__,
+                                        Path.home()/".veronica.config")))
+except:
+    synsets=[]
+
 
 config_dictionary = {}
 for pos, offset in synsets:
@@ -38,11 +44,23 @@ for pos, offset in synsets:
         pos, offset)] = synsets[(pos, offset)]
 
 
+
+
+
 class Veronica(Cmd):
     SCOPES = [
-        'https://www.googleapis.com/auth/gmail.readonly',
+                'https://www.googleapis.com/auth/gmail.readonly',
         'https://www.googleapis.com/auth/calendar.readonly',
-        "https://www.googleapis.com/auth/drive.readonly"
+        "https://www.googleapis.com/auth/drive.readonly",
+    "https://www.googleapis.com/auth/contacts.readonly",
+    "https://www.googleapis.com/auth/profile.language.read",
+    "https://www.googleapis.com/auth/user.addresses.read",
+    "https://www.googleapis.com/auth/user.birthday.read",
+    "https://www.googleapis.com/auth/user.emails.read",
+    "https://www.googleapis.com/auth/user.phonenumbers.read",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
+    "openid"
     ]
     path = __name__
     env = defaultdict()  # or dict {}
@@ -62,6 +80,9 @@ class Veronica(Cmd):
     from veronica.commands.query import do_query
     from veronica.commands.exit import do_exit
     from veronica.commands.great import do_great
+    from veronica.commands.new import do_new
+    from veronica.commands.list import do_list
+    from veronica.commands.reminders import do_remind
 
     def vx_setup(self):
         with open(Path.home() / ".veronica.env") as f:
@@ -76,19 +97,20 @@ class Veronica(Cmd):
         logging.debug("Loaded env variables from {}: {}".format(
             str(Path.home() / ".veronica.env"), str(self.env)))
 
-    def vx_google_setup(self, SCOPES):
+    def vx_google_setup(self):
         with open(Path.home() / "veronica.settings.json", "r") as f:
             settings = json.load(f)
         creds = None
         if "token" in settings["google"]:
             creds = Credentials.from_authorized_user_info(
-                settings["google"]["token"], SCOPES)
+                settings["google"]["token"], self.SCOPES)
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
+        
             else:
                 flow = InstalledAppFlow.from_client_config(
-                    settings["google"]["credentials"], SCOPES)
+                    settings["google"]["credentials"], self.SCOPES)
                 creds = flow.run_local_server(port=0)
             settings["google"]["token"] = json.loads(creds.to_json())
             with open(Path.home() / "veronica.settings.json", "w") as f:
@@ -111,7 +133,7 @@ class Veronica(Cmd):
 
     def precmd(self, line):
         line = line.lower()
-        search_query = word_tokenize(line)
+        search_query = line.split(" ")
         processed_search_query = []
         logging.debug("Removing stopwords ...")
         for token in search_query:
@@ -165,7 +187,7 @@ class Veronica(Cmd):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', '--log', default=logging.DEBUG, help="Logging Level")
-    parser.add_argument('-lf', '--logfile', default=True, help="Logging Levl")
+    parser.add_argument('-lf', '--logfile', default=True, help="Logging Level")
     parser.add_argument('_', nargs='*',help=", ".join([attr[3:] for attr in dir(Veronica) if attr[:3]=="do_"]))
     args = parser.parse_args()
 
@@ -184,7 +206,12 @@ def main():
         level = logging.NOTSET
 
     logging.basicConfig(
-        level=level or logging.ERROR)
+        format='%(asctime)s %(levelname)-8s %(message)s',
+        level=level or logging.DEBUG, 
+        filename=Path.home()/"veronica.log",
+        datefmt='%Y-%m-%d %H:%M:%S')
+    logging.captureWarnings(True)
+
     prompt = Veronica()
     prompt.prompt = 'veronica> '
     prompt.ruler = '-'

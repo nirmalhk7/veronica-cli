@@ -7,9 +7,9 @@ def do_email(self, args):
         Print upcoming latest important and unread emails
     """
     try:
-        creds = self.vx_google_setup(self, self.SCOPES)
+        creds = self.vx_google_setup(self)
     except TypeError:
-        creds = self.vx_google_setup(self.SCOPES)
+        creds = self.vx_google_setup()
     service = build('gmail', 'v1', credentials=creds)
     results = service.users().messages().list(
         userId='me',
