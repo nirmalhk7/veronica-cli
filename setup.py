@@ -28,7 +28,7 @@ def _pre_install():
         packages=find_packages(),
         install_requires=[],
         entry_points={"console_scripts": [
-            "veronica=veronica.cli:main", ], },
+            "veronica_dev=veronica.cli:main", ], },
         include_package_data=True,
         package_data={'': ['data/*.veronica']}
     )

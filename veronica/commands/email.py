@@ -1,3 +1,4 @@
+from rich.progress import Progress
 from veronica.voice import vx_print
 from rich.table import Table
 from googleapiclient.discovery import build
@@ -21,59 +22,59 @@ def do_email(self, args):
     except TypeError:
         creds = self.vx_google_setup()
     service = build('gmail', 'v1', credentials=creds)
-    results = service.users().messages().list(
-        userId='me',
-        includeSpamTrash=False,
-        maxResults=20,
-        labelIds=["INBOX", "IMPORTANT",
-                  "UNREAD"]).execute().get('messages', [])
-    labels = service.users().labels().get(
-        userId="me", id="Label_3592316490515748094").execute().get("name")
-    
-    table = Table()
-    table.add_column("Recieved At")
-    table.add_column("From")
-    table.add_column("Subject")
-    table.add_column("Labels")
-
-    mails = []
-    for i in results:
-        mail = service.users().messages().get(
+    with Progress(transient=True) as progress:
+        t1= progress.add_task("[red]Loading emails ...",start=False)
+        results = service.users().messages().list(
             userId='me',
-            id=i["id"]
-        ).execute()
-
-        mail_processed = {
-            "id": mail["id"],
-            "starred": "null",
-            "labels": []
-        }
-
-        for i in mail["labelIds"]:
-            if(i in style_hash.keys()):
-                mail_processed["category_color"]=style_hash[i]
-            if(i=="STARRED"):
-                mail_processed["starred"]="bold"
-            if(i[:6]=="Label_"):
-                mail_processed["labels"].append(
-                    service.users().labels().get(userId="me", id="Label_3592316490515748094").execute().get("name")
-                )
+            includeSpamTrash=False,
+            maxResults=20,
+            labelIds=["INBOX", "IMPORTANT",
+                    "UNREAD"]).execute().get('messages', [])
         
-        mail_processed["labels"]= " ".join(mail_processed["labels"])
-        for item in mail["payload"].get("headers", []):
-            if(item["name"] in ["From", "Subject", "Date"]):
-                mail_processed[item["name"]] = item["value"]
+        table = Table()
+        table.add_column("Recieved At")
+        table.add_column("From")
+        table.add_column("Subject")
+        table.add_column("Labels")
 
-        mails.append(mail_processed)
-    # with open("settings.json", "w") as f:
-    #     settings = json.dump(mails, f, indent=4)
-    link="https://mail.google.com/mail/u/0/#inbox/"
-    for i in mails:
-        table.add_row(
-            "[{} {}]{}[/]".format(i["starred"],i["category_color"] ,i["Date"]),
-            "[{} {}]{}[/]".format(i["starred"],i["category_color"] ,i["From"]),
-            "[{} {}][link={}]{}[/link][/]".format(i["starred"],i["category_color"],link+i["id"],i["Subject"]),
-            "[{} {}]{}[/]".format(i["starred"],i["category_color"] ,i["labels"]),
+        mails = []
+        for i in results:
+            mail = service.users().messages().get(
+                userId='me',
+                id=i["id"]
+            ).execute()
+
+            mail_processed = {
+                "id": mail["id"],
+                "starred": "null",
+                "labels": []
+            }
+
+            for i in mail["labelIds"]:
+                if(i in style_hash.keys()):
+                    mail_processed["category_color"]=style_hash[i]
+                if(i=="STARRED"):
+                    mail_processed["starred"]="bold"
+                if(i[:6]=="Label_"):
+                    mail_processed["labels"].append(
+                        service.users().labels().get(userId="me", id="Label_3592316490515748094").execute().get("name")
+                    )
             
-        )
+            mail_processed["labels"]= " ".join(mail_processed["labels"])
+            for item in mail["payload"].get("headers", []):
+                if(item["name"] in ["From", "Subject", "Date"]):
+                    mail_processed[item["name"]] = item["value"]
+
+            mails.append(mail_processed)
+        # with open("settings.json", "w") as f:
+        #     settings = json.dump(mails, f, indent=4)
+        link="https://mail.google.com/mail/u/0/#inbox/"
+        for i in mails:
+            table.add_row(
+                "[{} {}]{}[/]".format(i["starred"],i["category_color"] ,i["Date"]),
+                "[{} {}]{}[/]".format(i["starred"],i["category_color"] ,i["From"]),
+                "[{} {}][link={}]{}[/link][/]".format(i["starred"],i["category_color"],link+i["id"],i["Subject"]),
+                "[{} {}]{}[/]".format(i["starred"],i["category_color"] ,i["labels"]),
+                
+            )
     self.console.print(table)
