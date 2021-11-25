@@ -7,6 +7,7 @@ from googleapiclient.discovery import build
 from datetime import datetime, timedelta
 from rich.table import Table
 from rich import print
+from rich.progress import Progress
 
 from veronica.commands.reminders import list_reminders
 
@@ -72,15 +73,17 @@ def do_calendar(self, args):
     table.add_column("Calendar")
     table.add_column("Start")
     table.add_column("Duration")
-
-    events= list_calendar(self.vx_google_setup)
-    events+= list_reminders({"SCOPES": self.SCOPES})
-    events.sort(key=lambda x: x["start"], reverse=False)
-    for i in events:
-        table.add_row(
-            "[{}][link={}]{}[/link][/]".format(i["color"],i["link"], i["title"]),
-            "[{}]{}[/]".format(i["color"], i["calendar"]),
-            "[{}]{}[/]".format(i["color"], str(i["start"])),
-            "[{}]{}[/]".format(i["color"], str(i["end"]-i["start"]) if "end" in i else "-")
-        )
+    with Progress(transient=True) as progress:
+        t1= progress.add_task("[red]Loading calendars ...",start=False)
+        events= list_calendar(self.vx_google_setup)
+        t2= progress.add_task("[yellow]Loading reminders ...",start=False)
+        events+= list_reminders({"SCOPES": self.SCOPES})
+        events.sort(key=lambda x: x["start"], reverse=False)
+        for i in events:
+            table.add_row(
+                "[{}][link={}]{}[/link][/]".format(i["color"],i["link"], i["title"]),
+                "[{}]{}[/]".format(i["color"], i["calendar"]),
+                "[{}]{}[/]".format(i["color"], str(i["start"])),
+                "[{}]{}[/]".format(i["color"], str(i["end"]-i["start"]) if "end" in i else "-")
+            )
     self.console.print(table)

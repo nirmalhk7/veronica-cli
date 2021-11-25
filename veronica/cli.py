@@ -22,10 +22,10 @@ from nltk.corpus import stopwords, wordnet as wn
 import logging
 from pathlib import Path
 import pickle
-import pkgutil
 from rich.console import Console
 from veronica.voice import vx_empty_stack, vx_speak
-
+from rich.layout import Layout
+from rich import print
 
 download('wordnet', quiet=True)
 
@@ -131,6 +131,11 @@ class Veronica(Cmd):
     def onecmd(self, line: str) -> bool:
         return super().onecmd(line)
 
+    def do_version(self,line):
+        layout = Layout(size=10)
+        # TODO Build a good looking layout here.
+        print(layout)
+
     def precmd(self, line):
         line = line.lower()
         search_query = line.split(" ")
@@ -187,7 +192,7 @@ class Veronica(Cmd):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', '--log', default=logging.DEBUG, help="Logging Level")
-    parser.add_argument('-lf', '--logfile', default=True, help="Logging Level")
+    parser.add_argument('-v','--version',help="Know more about Veronica",action='store_true')
     parser.add_argument('_', nargs='*',help=", ".join([attr[3:] for attr in dir(Veronica) if attr[:3]=="do_"]))
     args = parser.parse_args()
 
@@ -214,7 +219,7 @@ def main():
 
     prompt = Veronica()
     prompt.prompt = 'veronica> '
-    prompt.ruler = '-'
+    prompt.ruler = '='
 
     if (len(args._)):
         Veronica.precmd(Veronica, " ".join(args._))
@@ -223,6 +228,4 @@ def main():
     return 0
 
 if __name__=="__main__":
-    val=pkgutil.get_data('data','intent.json')
-    print(val)
     main()
