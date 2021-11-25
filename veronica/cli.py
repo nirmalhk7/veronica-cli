@@ -22,6 +22,7 @@ from nltk.corpus import stopwords, wordnet as wn
 import logging
 from pathlib import Path
 import pickle
+import pkgutil
 from rich.console import Console
 from veronica.voice import vx_empty_stack, vx_speak
 
@@ -222,3 +223,8 @@ def main():
     else:
         prompt.cmdloop("Welcome {}! Veronica at your service ...".format(getpass.getuser().capitalize()))
     return 0
+
+if __name__=="__main__":
+    val=pkgutil.get_data('data','intent.json')
+    print(val)
+    main()
