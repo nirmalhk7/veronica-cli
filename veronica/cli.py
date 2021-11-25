@@ -30,10 +30,8 @@ download('wordnet', quiet=True)
 
 stop_words = set(stopwords.words('english'))
 try:
-    synsets = dict(
-        pickle.load(
-            pkg_resources.resource_stream(__name__,
-                                        Path.home()/".veronica.config")))
+    synsets = dict(pickle.load(pkg_resources.resource_string(__name__,"/data/module.weights").decode("utf-8","ignore")))
+
 except:
     synsets=[]
 
