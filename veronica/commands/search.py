@@ -1,9 +1,11 @@
-from veronica.config import unit
+
 from veronica.voice import vx_print
 from googleapiclient.discovery import build
 
+from veronica.unit import unit
 
 
+@unit(label="Find a file")
 def do_search(self, args):
     """
         Search file at location, or search in Google Drive.

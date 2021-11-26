@@ -7,4 +7,4 @@ def do_exit(self, args):
 
 def do_EOF(self, line):
     vx_print(self.intents["exit"][randint(0,len(self.intents["exit"])-1)].replace("<name>",self.username))
-    return True
+    exit(1)

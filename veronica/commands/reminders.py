@@ -1,5 +1,6 @@
 from rich.table import Table
 from rich.prompt import Prompt, Confirm
+from veronica.unit import unit
 from veronica.utils.reminders.reminders_client import RemindersClient
 from datetime import date
 from veronica.voice import vx_print
@@ -9,6 +10,7 @@ def list_reminders(params):
     client= RemindersClient(params["SCOPES"])
     reminders = client.list_reminders(hours_upto=72)
     return reminders
+
 
 def do_reminders(self,line):
     table = Table()
@@ -27,6 +29,7 @@ def do_reminders(self,line):
         )
     self.console.print(table)
 
+@unit(label="Set a reminder")
 def do_remind(self,line):
     client= RemindersClient(self.SCOPES)
     dt= Prompt.ask("When do you want this to be reminded?",default=str(date.today()))

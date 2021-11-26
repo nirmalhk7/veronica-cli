@@ -10,15 +10,12 @@ from collections import defaultdict
 from typing import Type
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
-
+import spacy
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from cmd import Cmd
 import getpass
 import pkg_resources
-from nltk import download
-from nltk import word_tokenize
-from nltk.corpus import stopwords, wordnet as wn
 import logging
 from pathlib import Path
 import pickle
@@ -30,19 +27,11 @@ from rich.progress import Progress
 
 with Progress(transient=True) as progress:
     t2= progress.add_task("[orange]Starting up ...",start=False)
-    download('wordnet', quiet=True)
-    stop_words = set(stopwords.words('english'))
+    # download('wordnet', quiet=True)
 
     with open(pkg_resources.resource_filename(__name__,"/data/module.weights"), 'rb') as pickle_file:
         synsets = pickle.load(pickle_file)
-    config_dictionary_synset = {}
-    config_dictionary_plain = {}
-    for pos, offset in synsets:
-        config_dictionary_synset[wn.synset_from_pos_and_offset(
-            pos, offset)] = synsets[(pos, offset)]
-        config_dictionary_plain[wn.synset_from_pos_and_offset(
-            pos, offset).name().split(".")[0]]= synsets[(pos, offset)]
-    logging.info(config_dictionary_plain)
+    nlp= pickle.load(open("veronica/data/en_core_web_md","rb"))
 
 
 
@@ -76,12 +65,16 @@ class Veronica(Cmd):
     from veronica.commands.email import do_email
     from veronica.commands.calendar import do_calendar
     from veronica.commands.search import do_search
-    from veronica.commands.query import do_store
+    from veronica.commands.store import do_store
     from veronica.commands.exit import do_exit, do_EOF
     from veronica.commands.great import do_great
     from veronica.commands.list import do_list
     from veronica.commands.reminders import do_remind
     from veronica.commands.meet import do_meet
+
+    def __init__(self):
+        super().__init__()
+        self.method_names=[i for i in dir(self) if i[:3]=="do_"]
 
     def vx_setup(self):
         with open(Path.home() / ".veronica.env") as f:
@@ -128,12 +121,21 @@ class Veronica(Cmd):
         vx_empty_stack()
     
     def precmd(self, line):
+        line_arr= line.split(" ")
+        if "do_"+line_arr[0] in self.method_names:
+            return line
         
-        arg, params= line.split(" ")[0], " ".join(line.split(" ")[1:]) 
-        if(arg in config_dictionary_plain.keys()):
-            return "{} {}".format(config_dictionary_plain[arg],params)
+        line_nlp= nlp(line)
+        similar_unit_arr=[]
+        for i in synsets.keys():
+            similarity= round(line_nlp.similarity(i),2)
+            if(similarity>=0.75):
+                similar_unit_arr.append((synsets[i],similarity))
+        similar_unit_arr=sorted(similar_unit_arr, key=lambda item: item[1],reverse=True)
+        logging.debug("Query: {} Similarity Map: {}".format(line,similar_unit_arr))
+        if(similar_unit_arr):
+            return similar_unit_arr[0][0]
         return line
-
 
     def onecmd(self, line: str) -> bool:
         return super().onecmd(line)
