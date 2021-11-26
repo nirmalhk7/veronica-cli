@@ -1,10 +1,14 @@
-![Upload Python Package](https://github.com/nirmalhk7/veronica-cli/workflows/Upload%20Python%20Package/badge.svg?branch=master)
-
 # veronica-cli
+> Your faithful CLI Assistant.
 
-Your faithful Linux Assistant.
+I'm planning a lot of new things, please make sure you check out the Issue section.
 
-## Features Implemented
-- *Google Knowledge API*: Run `info SEARCH_TERM` to get relevant information such as the who's, where's and what's.
-- *Darksky API*
-
+## Installation Instructions
+<!-- TODO: This needs more work -->
+- Download the latest version from the Releases tab. Unzip it at any location in your desktop.
+- Unzip it at any location of your choice.
+- Add below line to your `.bashrc`:
+```
+alias veronica=BASE_PATH/veronica
+```
+Here BASE_PATH is the path where you unzipped Veronica to. 
