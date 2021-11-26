@@ -1,7 +1,7 @@
 from json import dumps, load
 from pathlib import Path
 from typing import Type
-from veronica.config import unit
+
 from veronica.voice import vx_print
 from googleapiclient.discovery import build
 from datetime import datetime, timedelta
@@ -10,6 +10,9 @@ from rich import print
 from rich.progress import Progress
 
 from veronica.commands.reminders import list_reminders
+
+from veronica.unit import unit
+
 
 def list_calendar(google_setup):
     creds = google_setup()
@@ -64,6 +67,7 @@ def list_calendar(google_setup):
                 events.append(new_event)
     return events
 
+@unit(label="Show me my calendar")
 def do_calendar(self, args):
     """
         Print all events and reminders 72 hours ahead of current time.

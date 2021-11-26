@@ -1,21 +1,24 @@
 from veronica.cli import Veronica
 import pickle
 from pathlib import Path
-from nltk.corpus import wordnet as wn
 from veronica.cli import Veronica
 import argparse
+import spacy
+
+
+nlp= pickle.load(open("veronica/data/en_core_web_md","rb"))
 
 def prebuild():
-    method_names = [attr[3:] for attr in dir(Veronica) if attr[:3] == "do_"]
-    synsets_all = {}
+    unit_hash={}
 
+    method_names = [attr for attr in dir(Veronica) if attr[:3] == "do_" and attr!="do_EOF"]
     for method in method_names:
-        method_synsets = wn.synsets(method)
-        for synset in method_synsets:
-            synsets_all[(synset.name().split('.')[1],
-                            synset.offset())] = method
-
+        if('nlp' in dir(getattr(Veronica,method))):
+            for label in getattr(Veronica,method).nlp:
+                unit_hash[nlp(label)]=method[3:]
+    
+    print(unit_hash)
     with open("veronica/data/module.weights", 'wb') as cn:
-        pickle.dump(synsets_all, cn)
+        pickle.dump(unit_hash, cn)
 
 prebuild()

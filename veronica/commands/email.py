@@ -5,6 +5,8 @@ from googleapiclient.discovery import build
 import json
 from datetime import date, datetime
 
+from veronica.unit import unit
+
 style_hash={
     "CATEGORY_FORUMS":"#FFA701",
     "CATEGORY_UPDATES": "#FFBA01",
@@ -13,6 +15,7 @@ style_hash={
     "CATEGORY_SOCIAL":"#FFDA00"
 }
 
+@unit(label="Check mails")
 def do_email(self, args):
     """
         Print upcoming latest important and unread emails

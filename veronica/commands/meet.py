@@ -4,6 +4,7 @@ from random import randint
 import webbrowser
 from veronica.voice import vx_print
 
+
 def do_meet(self,line):
     """
         Generate a Google Meet URL and open it on the browser.

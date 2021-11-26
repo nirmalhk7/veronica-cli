@@ -1,6 +1,6 @@
 import geocoder
 import requests
-from veronica.config import unit
+
 from rich import print
 from veronica.voice import vx_print
 

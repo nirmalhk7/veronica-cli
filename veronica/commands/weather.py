@@ -1,10 +1,12 @@
 import geocoder
 import requests
-from veronica.config import unit
+
 
 from veronica.voice import vx_print
 
+from veronica.unit import unit
 
+@unit(label="Current weather in a city")
 def do_weather(self,args):
     def f_to_c(x):
         return str(round((x - 32) * 5.0/9.0,2))
