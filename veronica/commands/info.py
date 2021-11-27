@@ -2,7 +2,7 @@ import geocoder
 import requests
 
 from rich import print
-from veronica.voice import vx_print
+
 
 
 def do_info(self,args):
@@ -30,15 +30,15 @@ def do_info(self,args):
                     res = data['itemListElement'][i]['result']
                     print("")
                     try:
-                        vx_print(res['name'])
+                        print(res['name'])
                     except KeyError:
                         pass
                     try:
-                        vx_print(res['description'])
+                        print(res['description'])
                     except KeyError:
                         pass
                     try:    
-                        vx_print(res['detailedDescription']['articleBody'])
+                        print(res['detailedDescription']['articleBody'])
                     except KeyError:
                         pass
                     try:    
@@ -47,6 +47,6 @@ def do_info(self,args):
                         pass
                     print("")
                 except IndexError:
-                    vx_print("Sorry, no data available!")
+                    print("Sorry, no data available!")
         else:
-            vx_print("Error: {}".format(str(response)),speakText="Sorry, there's been some kind of an error.")
+            print("Error: {}".format(str(response)),speakText="Sorry, there's been some kind of an error.")

@@ -1,5 +1,5 @@
 from rich.progress import Progress
-from veronica.voice import vx_print
+
 from rich.table import Table
 from googleapiclient.discovery import build
 import json
@@ -15,7 +15,7 @@ style_hash={
     "CATEGORY_SOCIAL":"#FFDA00"
 }
 
-@unit(label="Check mails")
+@unit(label=["Check mails","Any new emails?","Check my mails"])
 def do_email(self, args):
     """
         Print upcoming latest important and unread emails
@@ -80,4 +80,4 @@ def do_email(self, args):
                 "[{} {}]{}[/]".format(i["starred"],i["category_color"] ,i["labels"]),
                 
             )
-    self.console.print(table)
+    self.output.print(table,speakMsg="You have {} new emails".format(len(mails)))

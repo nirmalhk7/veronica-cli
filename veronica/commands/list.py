@@ -5,7 +5,7 @@ from veronica.commands.reminders import list_reminders
 
 def do_list(self,line):
     def do_new_error():
-        print("Apologies, incorrect command.")
+        self.output.print("Apologies, incorrect command.",speak=False)
     subcommands= defaultdict(do_new_error,{
         "emails": do_email,
         "calendar": list_calendar,

@@ -1,7 +1,7 @@
 from collections import defaultdict
 from pathlib import Path
 
-from veronica.voice import vx_print
+
 from json import load
 import inspect
 import webbrowser
@@ -27,11 +27,11 @@ def do_store(self,args):
 
     def store_get(key):
         if(" ".join(args[1:]) not in settings):
-            vx_print("Sorry, wrong key.")
+            print("Sorry, wrong key.")
             return
         if(re.match(url_regex,settings[key])):
             webbrowser.open(settings[key])
-            vx_print("Okay, I've opened that on your browser.")
+            print("Okay, I've opened that on your browser.")
         else:
             print(key)
         pass

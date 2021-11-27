@@ -3,7 +3,7 @@ from rich.prompt import Prompt, Confirm
 from veronica.unit import unit
 from veronica.utils.reminders.reminders_client import RemindersClient
 from datetime import date
-from veronica.voice import vx_print
+
 from dateutil import parser
 
 def list_reminders(params):
@@ -40,5 +40,5 @@ def do_remind(self,line):
     if(Confirm.ask("Confirm?", default="y")):
         reminder = client.create_reminder(dt,line)
         if(reminder):
-            vx_print("Duly noted.")
+            print("Duly noted.")
     return

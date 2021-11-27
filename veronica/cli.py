@@ -5,12 +5,10 @@ warnings.simplefilter("ignore", category=DeprecationWarning)
 
 import argparse
 import json
-import sys
 from collections import defaultdict
-from typing import Type
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
-import spacy
+
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from cmd import Cmd
@@ -20,18 +18,22 @@ import logging
 from pathlib import Path
 import pickle
 from rich.console import Console
-from veronica.voice import vx_empty_stack, vx_speak
+from veronica.voice import VoiceUtility
 from rich.layout import Layout
 from rich import print
 from rich.progress import Progress
 
+
+import spacy
+
 with Progress(transient=True) as progress:
-    t2= progress.add_task("[orange]Starting up ...",start=False)
+    t2= progress.add_task("[green]Loading ...",start=False)
     # download('wordnet', quiet=True)
 
     with open(pkg_resources.resource_filename(__name__,"/data/module.weights"), 'rb') as pickle_file:
         synsets = pickle.load(pickle_file)
-    nlp= pickle.load(open("veronica/data/en_core_web_md","rb"))
+    with open(pkg_resources.resource_filename(__name__,"/data/en_core_web_md"), 'rb') as pickle_file:
+        nlp = pickle.load(pickle_file)
 
 
 
@@ -55,6 +57,7 @@ class Veronica(Cmd):
     username = getpass.getuser().capitalize()
     console = Console()
     intents= json.loads(pkg_resources.resource_string(__name__,"/data/intents.json").decode("utf-8","ignore"))
+    output= VoiceUtility()
 
     from veronica.commands.calc import do_calc
     from veronica.commands.hi import do_hi
@@ -76,49 +79,37 @@ class Veronica(Cmd):
         super().__init__()
         self.method_names=[i for i in dir(self) if i[:3]=="do_"]
 
-    def vx_setup(self):
-        with open(Path.home() / ".veronica.env") as f:
-            for line in f:
-                if line.startswith('#') or not line.strip():
-                    continue
-                key, value = line.strip().split('=')
-                key, value = key.strip(), value.strip()
-                value = int(value) if value.isdigit() else value
-                self.env[key] = value
-
-        logging.debug("Loaded env variables from {}: {}".format(
-            str(Path.home() / ".veronica.env"), str(self.env)))
-
     def vx_google_setup(self):
-        with open(Path.home() / "veronica.settings.json", "r") as f:
-            settings = json.load(f)
         creds = None
-        if "token" in settings["google"]:
+        if "token" in self.settings["google"]:
             creds = Credentials.from_authorized_user_info(
-                settings["google"]["token"], self.SCOPES)
+                self.settings["google"]["token"], self.SCOPES)
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
         
             else:
                 flow = InstalledAppFlow.from_client_config(
-                    settings["google"]["credentials"], self.SCOPES)
+                    self.settings["google"]["credentials"], self.SCOPES)
                 creds = flow.run_local_server(port=0)
-            settings["google"]["token"] = json.loads(creds.to_json())
+            self.settings["google"]["token"] = json.loads(creds.to_json())
             with open(Path.home() / "veronica.settings.json", "w") as f:
-                settings = json.dump(settings, f, indent=4)
+                json.dump(self.settings, f, indent=4)
         return creds
 
     def cmdloop(self, intro) -> None:
-        self.vx_setup()
-        # vx_speak('Welcome {}! Veronica at your service ...'.format(getpass.getuser().capitalize()))
-        super().cmdloop(intro=intro)
+        with Progress(transient=True) as progress:
+            with open(Path.home() / "veronica.settings.json", "r") as f:
+                self.settings=json.load(f)
+        self.output.print(intro)
+        super().cmdloop(intro="")
 
     def emptyline(self):
         return None
 
     def postcmd(self, stop: bool, line: str):
-        vx_empty_stack()
+        # vx_empty_stack()
+        pass
     
     def precmd(self, line):
         line_arr= line.split(" ")
@@ -136,9 +127,6 @@ class Veronica(Cmd):
         if(similar_unit_arr):
             return similar_unit_arr[0][0]
         return line
-
-    def onecmd(self, line: str) -> bool:
-        return super().onecmd(line)
 
     def do_version(self,line):
         layout = Layout(size=10)

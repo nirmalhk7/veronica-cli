@@ -4,7 +4,8 @@ def unit(label):
         if(type(label)!=list):
             label_arr=[label]
         else:
-            label_arr=label    
+            label_arr=label  
+        
         setattr(function,'nlp',label_arr)
         return function
     return wrapper

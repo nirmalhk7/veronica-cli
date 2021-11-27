@@ -2,8 +2,6 @@ from veronica.cli import Veronica
 import pickle
 from pathlib import Path
 from veronica.cli import Veronica
-import argparse
-import spacy
 
 
 nlp= pickle.load(open("veronica/data/en_core_web_md","rb"))

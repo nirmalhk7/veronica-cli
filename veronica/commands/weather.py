@@ -2,7 +2,7 @@ import geocoder
 import requests
 
 
-from veronica.voice import vx_print
+
 
 from veronica.unit import unit
 
@@ -13,7 +13,7 @@ def do_weather(self,args):
 
     locError = False
 
-    vx_print("Retreiving weather for "+(args.capitalize() if args else "your current location")+" ... ", speak=False)
+    print("Retreiving weather for "+(args.capitalize() if args else "your current location")+" ... ", speak=False)
     if (args != ""):
         coord = g.latlng
     elif (args == "" or locError):
@@ -26,8 +26,8 @@ def do_weather(self,args):
             res = data['currently']['summary']+" today with "+f_to_c(data['currently']['temperature'])+"° C."
             if(data['currently']['precipProbability']>0.5):
                 res += " Expect a "+str(data['currently']['precipProbability']*100)+"% chance of "+data['currently']['precipType']+"."
-            vx_print("")
-            vx_print(res)
-            vx_print("")
+            print("")
+            print(res)
+            print("")
         else:
-            vx_print("Error: "+response.status_code)
+            print("Error: "+response.status_code)

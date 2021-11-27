@@ -2,7 +2,7 @@ from json import dumps, load
 from pathlib import Path
 from typing import Type
 
-from veronica.voice import vx_print
+
 from googleapiclient.discovery import build
 from datetime import datetime, timedelta
 from rich.table import Table
@@ -19,7 +19,7 @@ def list_calendar(google_setup):
     service = build('calendar', 'v3', credentials=creds)
 
     now = datetime.utcnow().isoformat() + 'Z'
-    maxLimit = (datetime.utcnow() + timedelta(hours=720)).isoformat() + 'Z'
+    maxLimit = (datetime.utcnow() + timedelta(hours=72)).isoformat() + 'Z'
 
     calendars = service.calendarList().list().execute().get("items", [])
     events = []
@@ -90,4 +90,4 @@ def do_calendar(self, args):
                 "[{}]{}[/]".format(i["color"], str(i["start"])),
                 "[{}]{}[/]".format(i["color"], str(i["end"]-i["start"]) if "end" in i else "-")
             )
-    self.console.print(table)
+    self.output.print(table,speakMsg="There are {} things lined up in your calendar".format(len(events)))

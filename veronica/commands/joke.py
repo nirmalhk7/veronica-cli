@@ -1,8 +1,8 @@
 
 from random import randint
 from veronica.unit import unit
-from veronica.voice import vx_print
+
 
 @unit(label="Tell me a joke")
 def do_joke(self,args):
-    vx_print(self.intents["joke"][randint(0,len(self.intents["joke"])-1)])
+    self.output.print(self.intents["joke"][randint(0,len(self.intents["joke"])-1)])

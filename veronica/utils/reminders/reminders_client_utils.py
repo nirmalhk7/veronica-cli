@@ -19,7 +19,7 @@ from veronica.utils.reminders.reminder import Reminder
 USER_OAUTH_DATA_FILE = os.path.expanduser('~/veronica.reminders.json')
 
 
-def authenticate(SCOPE) -> httplib2.Http:
+def authenticate(settings,SCOPE) -> httplib2.Http:
     """
     returns an Http instance that already contains the user credentials and is
     ready to make requests to alter user data.
@@ -27,15 +27,14 @@ def authenticate(SCOPE) -> httplib2.Http:
     On the first time, this function will open the browser so that the user can
     grant it access to his data
     """
-    with open(Path.home()/"veronica.settings.json") as f:
-        app_keys = json.load(f)
+
     storage = Storage(USER_OAUTH_DATA_FILE)
     credentials = storage.get()
     if credentials is None or credentials.invalid:
         credentials = tools.run_flow(
             flow=OAuth2WebServerFlow(
-                client_id=app_keys['google']['credentials']['installed']['client_id'],
-                client_secret=app_keys['google']['credentials']['installed']['client_secret'],
+                client_id=settings['google']['credentials']['installed']['client_id'],
+                client_secret=settings['google']['credentials']['installed']['client_secret'],
                 scope=['https://www.googleapis.com/auth/reminders'],
                 user_agent='veronica-cli',
             ),
