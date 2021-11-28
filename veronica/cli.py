@@ -1,7 +1,7 @@
 """Console script for veronica."""
 
-import warnings
-warnings.simplefilter("ignore", category=DeprecationWarning)
+from warnings import simplefilter
+simplefilter("ignore", category=DeprecationWarning)
 
 import argparse
 import json
@@ -22,18 +22,11 @@ from veronica.voice import VoiceUtility
 from rich.layout import Layout
 from rich import print
 from rich.progress import Progress
-
+from subprocess import PIPE, run
 
 import spacy
 
-with Progress(transient=True) as progress:
-    t2= progress.add_task("[green]Loading ...",start=False)
-    # download('wordnet', quiet=True)
 
-    with open(pkg_resources.resource_filename(__name__,"/data/module.weights"), 'rb') as pickle_file:
-        synsets = pickle.load(pickle_file)
-    with open(pkg_resources.resource_filename(__name__,"/data/en_core_web_md"), 'rb') as pickle_file:
-        nlp = pickle.load(pickle_file)
 
 
 
@@ -57,7 +50,8 @@ class Veronica(Cmd):
     username = getpass.getuser().capitalize()
     console = Console()
     intents= json.loads(pkg_resources.resource_string(__name__,"/data/intents.json").decode("utf-8","ignore"))
-    output= VoiceUtility()
+    nlp=None
+    synsets=None
 
     from veronica.commands.calc import do_calc
     from veronica.commands.hi import do_hi
@@ -75,9 +69,17 @@ class Veronica(Cmd):
     from veronica.commands.reminders import do_remind
     from veronica.commands.meet import do_meet
 
-    def __init__(self):
+    def __init__(self,silent=False):
         super().__init__()
         self.method_names=[i for i in dir(self) if i[:3]=="do_"]
+        self.output= VoiceUtility(silent)
+        if(silent):
+            print("[gray][i]Running on silent mode ...[/][/]")
+        
+    
+    def vx_os_output(self,command):
+        result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
+        return result.stdout.strip()
 
     def vx_google_setup(self):
         creds = None
@@ -116,28 +118,46 @@ class Veronica(Cmd):
         if "do_"+line_arr[0] in self.method_names:
             return line
         
-        line_nlp= nlp(line)
-        similar_unit_arr=[]
-        for i in synsets.keys():
+        elif line in self.settings["commands"].keys():
+            print(self.vx_os_output(self.settings["commands"][line]))
+            return ""
+
+        elif(not self.synsets and not self.nlp):
+            with Progress(transient=True) as progress:
+                t2= progress.add_task("[green]Loading ...",start=False)
+                with open(pkg_resources.resource_filename(__name__,"/data/module.weights"), 'rb') as pickle_file:
+                    self.synsets = pickle.load(pickle_file)
+                with open(pkg_resources.resource_filename(__name__,"/data/en_core_web_md"), 'rb') as pickle_file:
+                    self.nlp = pickle.load(pickle_file)
+        
+        line_nlp= self.nlp(line)
+        max_similarity=-1
+        max_similarity_command=None
+        for i in self.synsets.keys():
             similarity= round(line_nlp.similarity(i),2)
-            if(similarity>=0.75):
-                similar_unit_arr.append((synsets[i],similarity))
-        similar_unit_arr=sorted(similar_unit_arr, key=lambda item: item[1],reverse=True)
-        logging.debug("Query: {} Similarity Map: {}".format(line,similar_unit_arr))
-        if(similar_unit_arr):
-            return similar_unit_arr[0][0]
+            if(similarity>=0.75 and similarity>max_similarity):
+                max_similarity=similarity
+                max_similarity_command= self.synsets[i]
+
+
+        if(max_similarity!=-1):
+            return max_similarity_command+(" "+str(line_nlp.ents[0]) if line_nlp.ents else "")
+
         return line
 
     def do_version(self,line):
         layout = Layout(size=10)
         # TODO Build a good looking layout here.
         print(layout)
-
+    
+    def onecmd(self, line: str) -> bool:
+        logging.debug("COMMAND "+line)
+        return super().onecmd(line)
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', '--log', default=logging.DEBUG, help="Logging Level")
-    parser.add_argument('-v','--version',help="Know more about Veronica",action='store_true')
+    parser.add_argument('-s','--silent',help="Run Veronica on silent mode.",action='store_true')
     parser.add_argument('_', nargs='*',help=", ".join([attr[3:] for attr in dir(Veronica) if attr[:3]=="do_"]))
     args = parser.parse_args()
 
@@ -162,7 +182,7 @@ def main():
         datefmt='%Y-%m-%d %H:%M:%S')
     logging.captureWarnings(True)
 
-    prompt = Veronica()
+    prompt = Veronica(args.silent)
     prompt.prompt = 'veronica> '
     prompt.ruler = '='
     

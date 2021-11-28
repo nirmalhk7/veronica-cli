@@ -69,8 +69,7 @@ def do_email(self, args):
                     mail_processed[item["name"]] = item["value"]
 
             mails.append(mail_processed)
-        # with open("settings.json", "w") as f:
-        #     settings = json.dump(mails, f, indent=4)
+            
         link="https://mail.google.com/mail/u/0/#inbox/"
         for i in mails:
             table.add_row(
