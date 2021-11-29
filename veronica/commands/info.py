@@ -1,10 +1,12 @@
-import geocoder
+import webbrowser
 import requests
 
 from rich import print
 
+from veronica.unit import unit
 
 
+@unit(label=["What are laws of thermodynamics?","What is earth?","Who is Elon Musk?","Where is Cambodia?"])
 def do_info(self,args):
     print("Retreiving information for your query ... ")
     try:
@@ -23,6 +25,7 @@ def do_info(self,args):
             'key': self.settings["env"]["KNOWLEDGE_GRAPH"],
         }
         response = requests.get(service_url,params=parameters)
+        anyError=False
         if(response.status_code == 200):
             data = response.json()
             for i in range(limit):
@@ -32,21 +35,22 @@ def do_info(self,args):
                     try:
                         print(res['name'])
                     except KeyError:
-                        pass
+                        anyError=True
                     try:
                         print(res['description'])
                     except KeyError:
-                        pass
+                        anyError=True
                     try:    
                         print(res['detailedDescription']['articleBody'])
                     except KeyError:
-                        pass
+                        anyError=True
                     try:    
                         print(res['detailedDescription']['url'])
                     except KeyError:
-                        pass
+                        anyError=True
                     print("")
                 except IndexError:
-                    print("Sorry, no data available!")
+                    anyError=True
         else:
             print("Error: {}".format(str(response)),speakText="Sorry, there's been some kind of an error.")
+            webbrowser.open("https://www.google.com/search?q={}".format(query))

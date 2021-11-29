@@ -50,6 +50,8 @@ class Veronica(Cmd):
     username = getpass.getuser().capitalize()
     console = Console()
     intents= json.loads(pkg_resources.resource_string(__name__,"/data/intents.json").decode("utf-8","ignore"))
+
+
     nlp=None
     synsets=None
 
@@ -73,6 +75,10 @@ class Veronica(Cmd):
         super().__init__()
         self.method_names=[i for i in dir(self) if i[:3]=="do_"]
         self.output= VoiceUtility(silent)
+        with Progress(transient=True) as progress:
+            t2= progress.add_task("[pink]Loading settings configurations...",start=False)
+            with open(Path.home() / "veronica.settings.json", "r") as f:
+                self.settings=json.load(f)
         if(silent):
             print("[gray][i]Running on silent mode ...[/][/]")
         
@@ -100,9 +106,6 @@ class Veronica(Cmd):
         return creds
 
     def cmdloop(self, intro) -> None:
-        with Progress(transient=True) as progress:
-            with open(Path.home() / "veronica.settings.json", "r") as f:
-                self.settings=json.load(f)
         self.output.print(intro)
         super().cmdloop(intro="")
 
