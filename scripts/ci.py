@@ -15,7 +15,7 @@ def prebuild():
                 unit_hash[nlp(label)]=method[3:]
     
     print(unit_hash)
-    with open("veronica/data/module.weights.json", 'wb') as cn:
+    with open("veronica/data/module.weights", 'wb') as cn:
         pickle.dump(unit_hash, cn)
 
 prebuild()
