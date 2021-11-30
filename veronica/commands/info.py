@@ -6,7 +6,7 @@ from rich import print
 from veronica.unit import unit
 
 
-@unit(label=["What are laws of thermodynamics?","What is earth?","Who is Elon Musk?","Where is Cambodia?"])
+@unit(label=["What are laws of thermodynamics?","What is earth?","Who is Elon Musk?","Where is Cambodia?","Tell me about London"])
 def do_info(self,args):
     print("Retreiving information for your query ... ")
     try:
