@@ -1,6 +1,8 @@
 """Console script for veronica."""
 
 from warnings import simplefilter
+
+from veronica.user import User
 simplefilter("ignore", category=DeprecationWarning)
 
 import argparse
@@ -46,25 +48,21 @@ class Veronica(Cmd):
     "openid"
     ]
     path = __name__
-    env = defaultdict()  # or dict {}
-    username = getpass.getuser().capitalize()
+    user= User()
+    
     console = Console()
     intents= json.loads(pkg_resources.resource_string(__name__,"/data/intents.json").decode("utf-8","ignore"))
     nlp=None
     synsets=None
 
     from veronica.commands.calc import do_calc
-    from veronica.commands.hi import do_hi
     from veronica.commands.info import do_info
-    from veronica.commands.intro import do_intro
-    from veronica.commands.joke import do_joke
     from veronica.commands.weather import do_weather
     from veronica.commands.email import do_email
     from veronica.commands.calendar import do_calendar
     from veronica.commands.search import do_search
     from veronica.commands.store import do_store
     from veronica.commands.exit import do_exit, do_EOF
-    from veronica.commands.great import do_great
     from veronica.commands.list import do_list
     from veronica.commands.reminders import do_remind
     from veronica.commands.meet import do_meet
