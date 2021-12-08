@@ -2,7 +2,7 @@
 
 from warnings import simplefilter
 
-from veronica.user import User
+from veronica.interfaces.user import UserInterface
 simplefilter("ignore", category=DeprecationWarning)
 
 import argparse
@@ -48,7 +48,7 @@ class Veronica(Cmd):
     "openid"
     ]
     path = __name__
-    user= User()
+    user= UserInterface()
     
     console = Console()
     intents= json.loads(pkg_resources.resource_string(__name__,"/data/intents.json").decode("utf-8","ignore"))
@@ -66,6 +66,7 @@ class Veronica(Cmd):
     from veronica.commands.list import do_list
     from veronica.commands.reminders import do_remind
     from veronica.commands.meet import do_meet
+    from veronica.commands.test import do_test
 
     def __init__(self,silent=False):
         super().__init__()
@@ -85,13 +86,16 @@ class Veronica(Cmd):
             creds = Credentials.from_authorized_user_info(
                 self.settings["google"]["token"], self.SCOPES)
         if not creds or not creds.valid:
+            print(2)
             if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-        
-            else:
-                flow = InstalledAppFlow.from_client_config(
-                    self.settings["google"]["credentials"], self.SCOPES)
-                creds = flow.run_local_server(port=0)
+                print('1')
+                # creds.refresh(Request())
+                del self.settings["google"]["credentials"]
+                print(3)
+            flow = InstalledAppFlow.from_client_config(
+                self.settings["google"]["credentials"], self.SCOPES)
+            creds = flow.run_local_server(port=0)
+            print(4,creds)
             self.settings["google"]["token"] = json.loads(creds.to_json())
             with open(Path.home() / "veronica.settings.json", "w") as f:
                 json.dump(self.settings, f, indent=4)
@@ -150,7 +154,11 @@ class Veronica(Cmd):
     
     def onecmd(self, line: str) -> bool:
         logging.debug("COMMAND "+line)
-        return super().onecmd(line)
+        try:
+            super().onecmd(line)
+        except Exception as e:
+            print(e)
+        return True 
 
 def main():
     parser = argparse.ArgumentParser()
@@ -187,7 +195,7 @@ def main():
     if (len(args._)): 
         getattr(prompt,"do_"+prompt.precmd(" ".join(args._)).strip())(" ".join(args._[1:]))
     else:
-        prompt.cmdloop("Welcome {}! Veronica at your service ...".format(getpass.getuser().capitalize()))
+        prompt.cmdloop("Welcome {}! Veronica at your service ...".format(UserInterface.system_username))
     return 0
 
 if __name__=="__main__":

@@ -32,6 +32,7 @@ class VoiceUtility():
             os.remove(filename)
         except Exception as e:
             logging.error(str(e))
+            print(3)
             cmd = ["espeak", '-s130', '-ven+f5', msg]
             subprocess.run(cmd)
     
