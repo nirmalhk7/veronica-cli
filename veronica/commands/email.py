@@ -53,7 +53,7 @@ def do_email(self, args):
                 if(i in style_hash.keys()):
                     mailobj.category_color = style_hash[i]
                 if(i == "STARRED"):
-                    mailobj.starred = "bold"
+                    mailobj.starred = "bold "
                 if(i[:6] == "Label_"):
                     mailobj.labels = " ".join(service.users().labels().get(
                         userId="me", id=i).execute().get("name"))
@@ -64,7 +64,14 @@ def do_email(self, args):
 
             mails.append(mailobj)
 
+        link = "https://mail.google.com/mail/u/0/#inbox/"
         for i in mails:
-            table.add_row(i.get())
+            table.add_row(
+                "[{}{}]{}[/]".format(i.starred,i.category_color ,i.Date),
+                "[{}{}]{}[/]".format(i.starred,i.category_color ,i.From),
+                "[{}{}][link={}]{}[/link][/]".format(i.starred,i.category_color,link+i.id,i.Subject),
+                "[{}{}]{}[/]".format(i.starred,i.category_color ,i.labels),   
+            )
+
     self.output.print(
         table, speakMsg="You have {} new emails".format(len(mails)))

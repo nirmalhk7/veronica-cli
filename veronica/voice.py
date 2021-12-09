@@ -32,7 +32,6 @@ class VoiceUtility():
             os.remove(filename)
         except Exception as e:
             logging.error(str(e))
-            print(3)
             cmd = ["espeak", '-s130', '-ven+f5', msg]
             subprocess.run(cmd)
     
@@ -40,6 +39,7 @@ class VoiceUtility():
         if responsetts is not None:
             response = responsetts
         # Special thanks to @Darkonaut https://stackoverflow.com/questions/52786288/python-running-code-simultaneously-tts-and-print-functions
+
         Timer(interval=interval, function=self._espeak, args=(response,)).start()
 
     def print(self,msg,speakMsg=False,speak=True):

@@ -28,7 +28,7 @@ def do_search(self, args):
     table.add_column("Subject")
     table.add_column("Labels")
     relevant_files= list(str(i).split(".") for i in Path(pathglob).glob(fileglob))
-
+    
     creds = self.vx_google_setup()
 
     

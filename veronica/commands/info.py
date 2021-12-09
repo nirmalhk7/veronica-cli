@@ -15,12 +15,12 @@ def do_info(self,args):
         limit = 1
     
     service_url = 'https://kgsearch.googleapis.com/v1/entities:search'
-    if(self.settings["env"]["KNOWLEDGE_GRAPH"]):
+    if(self.settings["env"]["GOOGLE_API"]):
         parameters = {
             'query': query,
             'limit': limit,
             'indent': True,
-            'key': self.settings["env"]["KNOWLEDGE_GRAPH"],
+            'key': self.settings["env"]["GOOGLE_API"],
         }
         response = requests.get(service_url,params=parameters)
         if(response.status_code == 200):

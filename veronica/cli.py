@@ -25,33 +25,29 @@ from rich.layout import Layout
 from rich import print
 from rich.progress import Progress
 from subprocess import PIPE, run
-
 import spacy
-
-
-
 
 
 class Veronica(Cmd):
     SCOPES = [
-    'https://www.googleapis.com/auth/gmail.readonly',
-    'https://www.googleapis.com/auth/calendar.readonly',
-    "https://www.googleapis.com/auth/drive.readonly",
-    "https://www.googleapis.com/auth/contacts.readonly",
-    "https://www.googleapis.com/auth/profile.language.read",
-    "https://www.googleapis.com/auth/user.addresses.read",
-    "https://www.googleapis.com/auth/user.birthday.read",
-    "https://www.googleapis.com/auth/user.emails.read",
-    "https://www.googleapis.com/auth/user.phonenumbers.read",
-    "https://www.googleapis.com/auth/userinfo.email",
-    "https://www.googleapis.com/auth/userinfo.profile",
-    "openid"
+        'https://www.googleapis.com/auth/gmail.readonly',
+        'https://www.googleapis.com/auth/calendar.readonly',
+        "https://www.googleapis.com/auth/drive.readonly",
+        "https://www.googleapis.com/auth/contacts.readonly",
+        "https://www.googleapis.com/auth/profile.language.read",
+        "https://www.googleapis.com/auth/user.addresses.read",
+        "https://www.googleapis.com/auth/user.birthday.read",
+        "https://www.googleapis.com/auth/user.emails.read",
+        "https://www.googleapis.com/auth/user.phonenumbers.read",
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "openid"
     ]
     path = __name__
     user= UserInterface()
-    
     console = Console()
     intents= json.loads(pkg_resources.resource_string(__name__,"/data/intents.json").decode("utf-8","ignore"))
+    settings= json.load(open(Path.home() / "veronica.settings.json", "r"))
     nlp=None
     synsets=None
 
@@ -82,29 +78,23 @@ class Veronica(Cmd):
 
     def vx_google_setup(self):
         creds = None
-        if "token" in self.settings["google"]:
+        if "oauth_resp" in self.settings["google"]:
             creds = Credentials.from_authorized_user_info(
-                self.settings["google"]["token"], self.SCOPES)
+                self.settings["google"]["oauth_resp"], self.SCOPES)
         if not creds or not creds.valid:
-            print(2)
             if creds and creds.expired and creds.refresh_token:
-                print('1')
-                # creds.refresh(Request())
-                del self.settings["google"]["credentials"]
-                print(3)
-            flow = InstalledAppFlow.from_client_config(
-                self.settings["google"]["credentials"], self.SCOPES)
-            creds = flow.run_local_server(port=0)
-            print(4,creds)
-            self.settings["google"]["token"] = json.loads(creds.to_json())
+                creds.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_config(
+                    self.settings["google"]["oauth"], self.SCOPES)
+                creds = flow.run_local_server(port=0)
+
+            self.settings["google"]["oauth_resp"] = json.loads(creds.to_json())
             with open(Path.home() / "veronica.settings.json", "w") as f:
                 json.dump(self.settings, f, indent=4)
         return creds
 
     def cmdloop(self, intro) -> None:
-        with Progress(transient=True) as progress:
-            with open(Path.home() / "veronica.settings.json", "r") as f:
-                self.settings=json.load(f)
         self.output.print(intro)
         super().cmdloop(intro="")
 
@@ -120,7 +110,7 @@ class Veronica(Cmd):
         if "do_"+line_arr[0] in self.method_names:
             return line
         
-        elif line in self.settings["commands"].keys():
+        elif "commands" in self.settings and line in self.settings["commands"].keys():
             print(self.vx_os_output(self.settings["commands"][line]))
             return ""
 
@@ -153,12 +143,8 @@ class Veronica(Cmd):
         print(layout)
     
     def onecmd(self, line: str) -> bool:
-        logging.debug("COMMAND "+line)
-        try:
-            super().onecmd(line)
-        except Exception as e:
-            print(e)
-        return True 
+        logging.debug("COMMAND "+line)    
+        super().onecmd(line)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -189,7 +175,7 @@ def main():
     logging.captureWarnings(True)
 
     prompt = Veronica(args.silent)
-    prompt.prompt = 'veronica> '
+    prompt.prompt = 'veronica › '
     prompt.ruler = '='
     
     if (len(args._)): 
