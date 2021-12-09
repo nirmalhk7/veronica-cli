@@ -103,8 +103,7 @@ def do_calendar(self, args):
         events= list_calendar(self.vx_google_setup)
         t2= progress.add_task("[yellow]Loading reminders ...",start=False)
         # events+= list_reminders({"SCOPES": self.SCOPES})
-        t3= progress.add_task("[yellow]Loading birthdays ...",
-        start=False)
+        t3= progress.add_task("[#FFA500]Loading birthdays ...",start=False)
         events+= list_birthdays(self.vx_google_setup)
 
         events.sort(key=lambda x: x.start, reverse=False)

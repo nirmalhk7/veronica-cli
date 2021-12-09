@@ -110,9 +110,8 @@ class Veronica(Cmd):
         if "do_"+line_arr[0] in self.method_names:
             return line
         
-        elif "commands" in self.settings and line in self.settings["commands"].keys():
-            print(self.vx_os_output(self.settings["commands"][line]))
-            return ""
+        elif "store" in self.settings and line in self.settings["store"].keys():
+            return "store {}".format(line)
 
         elif(not self.synsets and not self.nlp):
             with Progress(transient=True) as progress:
@@ -130,7 +129,6 @@ class Veronica(Cmd):
             if(similarity>=0.75 and similarity>max_similarity):
                 max_similarity=similarity
                 max_similarity_command= self.synsets[i]
-
 
         if(max_similarity!=-1):
             return max_similarity_command+(" "+str(line_nlp.ents[0]) if line_nlp.ents else "")
@@ -179,7 +177,7 @@ def main():
     prompt.ruler = '='
     
     if (len(args._)): 
-        getattr(prompt,"do_"+prompt.precmd(" ".join(args._)).strip())(" ".join(args._[1:]))
+        getattr(prompt,"do_"+prompt.precmd(" ".join(args._)).strip().split(" ")[0])(" ".join(args._))
     else:
         prompt.cmdloop("Welcome {}! Veronica at your service ...".format(UserInterface.system_username))
     return 0

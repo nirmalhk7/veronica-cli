@@ -22,27 +22,6 @@ def do_store(self,args):
             r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
             r'(?::\d+)?' # optional port
             r'(?:/?|[/?]\S+)$', re.IGNORECASE)
-    def invalid_command():
-        return "Invalid command. Try running 'help'"
-
-    def store_get(key):
-        if(" ".join(args[1:]) not in settings):
-            print("Sorry, wrong key.")
-            return
-        if(re.match(url_regex,settings[key])):
-            webbrowser.open(settings[key])
-            print("Okay, I've opened that on your browser.")
-        else:
-            print(key)
-        pass
-    def store_list(key):
-        for i in settings.keys():
-            print("\t{}".format(i))
-        pass
-    def store_create(key):
-        pass
-    def store_update(key):
-        pass
-    def store_delete(key):
-        pass
-    print("")
+    
+    # TODO Detect for links
+    print(1,args)
