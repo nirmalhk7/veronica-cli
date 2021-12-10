@@ -11,8 +11,6 @@ import re
 def do_store(self,args):
     """
         Veronica inbuilt key value store.
-        USAGE:
-        > store [list|create|delete|update]    
     """
 
     url_regex = re.compile(
@@ -23,5 +21,11 @@ def do_store(self,args):
             r'(?::\d+)?' # optional port
             r'(?:/?|[/?]\S+)$', re.IGNORECASE)
     
-    # TODO Detect for links
-    print(1,args)
+    if(args not in self.settings["store"].keys()):
+        self.output.print("Invalid key specified: {}".format(args))
+    
+    if(re.match(url_regex,self.settings["store"][args])):
+        webbrowser.open(self.settings["store"][args])
+        self.output.print("Okay, I've opened that on your browser.")
+    else:
+        self.output.print(self.settings["store"][args],speak=False)
