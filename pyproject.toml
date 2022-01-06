@@ -1,0 +1,4 @@
+[tool.semantic_release]
+version_variable = [
+    'veronica/__init__.py:__version__',
+]
