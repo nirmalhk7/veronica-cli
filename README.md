@@ -12,3 +12,16 @@ I'm planning a lot of new things, please make sure you check out the Issue secti
 alias veronica=BASE_PATH/veronica
 ```
 Here BASE_PATH is the path where you unzipped Veronica to. 
+
+## Roadmap
+### Service Based Commands
+- Google Calendar
+- GMail
+- Google Reminders
+- Weather
+- info (Google Knowledge Graph)
+### Conversational Commands
+(I'm guessing this would need an NLP model of some sorts.)
+### Device Mgmt Commands
+
+### Device Interaction Commands

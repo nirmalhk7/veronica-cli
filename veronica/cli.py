@@ -147,23 +147,14 @@ class Veronica(Cmd):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', '--log', default=logging.DEBUG, help="Logging Level")
-    parser.add_argument('-s','--silent',help="Run Veronica on silent mode.",action='store_true')
+    parser.add_argument('-s','--silent',help="First time setup",action='store_true')
+    parser.add_argument('-s','--setup',help="Run Veronica on silent mode.",action='store_true')
     parser.add_argument('_', nargs='*',help=", ".join([attr[3:] for attr in dir(Veronica) if attr[:3]=="do_"]))
     args = parser.parse_args()
 
     level = None
-    if (args.log == "CRITICAL"):
-        level = logging.CRITICAL
-    elif (args.log == "ERROR"):
-        level = logging.ERROR
-    elif (args.log == "WARNING"):
-        level = logging.WARNING
-    elif (args.log == "INFO"):
-        level = logging.INFO
-    elif (args.log == "DEBUG"):
-        level = logging.DEBUG
-    elif (args.log == "NOTSET"):
-        level = logging.NOTSET
+    if(args.log in logging._nameToLevel):
+        level = logging._nameToLevel[args.log]
 
     logging.basicConfig(
         format='%(asctime)s %(levelname)-8s %(message)s',

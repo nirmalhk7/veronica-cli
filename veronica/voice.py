@@ -8,6 +8,7 @@ from gtts import gTTS
 import os
 import re
 from pydub import AudioSegment, playback
+from datetime import datetime
 
 FNULL = open(os.devnull, 'w')
 _subprocess_call = playback.subprocess.call
@@ -26,7 +27,7 @@ class VoiceUtility():
     def _espeak(self,msg):
         try:
             tts = gTTS(text=msg, lang='en')
-            filename = ".veronica.temp.mp3"
+            filename = "{}-veronica.temp.mp3".format(datetime.now().timestamp())
             tts.save(filename)
             playback.play(AudioSegment.from_mp3(filename))
             os.remove(filename)
