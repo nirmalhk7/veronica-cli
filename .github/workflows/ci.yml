@@ -21,9 +21,13 @@ jobs:
     - name: Install
       run: pyinstaller cli.spec --noconfirm --onefile
     - name: Generate changelog and update version
-      run: semantic-release changelog > CHANGELOG.md && semantic-release version
+      run: | 
+        semantic-release changelog > CHANGELOG.md
+        semantic-release version
+        echo "VERSION=$(semantic-release print-version --current)" >> $GITHUB_ENV
     - uses: ncipollo/release-action@v1
       with:
         artifacts: "dist/veronica"
         bodyFile: "CHANGELOG.md"
         token: ${{ secrets.GITHUB_TOKEN }}
+        name: ${{ env.VERSION }}
