@@ -8,3 +8,5 @@ requests==2.25.0
 setuptools==50.3.0
 gTTS == 2.2.3
 flake8 == 4.0.1
+semantic-release==7.23.0
+pyinstaller==4.7
