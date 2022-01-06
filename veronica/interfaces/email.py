@@ -5,9 +5,6 @@ class EmailsInterface():
     From = None
     Subject = None
     labels = None
-    
-    
+
     def __init__(self, mail_id) -> None:
         self.id = mail_id
-
-

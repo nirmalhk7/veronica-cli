@@ -15,11 +15,11 @@ from oauth2client.file import Storage
 from pathlib import Path
 from veronica.utils.reminders.reminder import Reminder
 
-# APP_KEYS_FILE = 
+# APP_KEYS_FILE =
 USER_OAUTH_DATA_FILE = os.path.expanduser('~/veronica.reminders.json')
 
 
-def authenticate(settings,SCOPE) -> httplib2.Http:
+def authenticate(settings, SCOPE) -> httplib2.Http:
     """
     returns an Http instance that already contains the user credentials and is
     ready to make requests to alter user data.
@@ -39,7 +39,8 @@ def authenticate(settings,SCOPE) -> httplib2.Http:
                 user_agent='veronica-cli',
             ),
             storage=storage,
-            flags=tools.argparser.parse_args([]),
+            flags=tools.argparser.parse_args(
+                []),
         )
     auth_http = credentials.authorize(httplib2.Http())
     return auth_http
@@ -106,7 +107,7 @@ def list_req_body(num_reminders: int, max_timestamp_msec: int = 0) -> str:
         '5': 1,  # boolean field: 0 or 1. 0 doesn't work ¯\_(ツ)_/¯
         '6': num_reminders,  # number number of reminders to retrieve
     }
-    
+
     if max_timestamp_msec:
         max_timestamp_msec += int(timedelta(hours=15).total_seconds() * 1000)
         body['16'] = max_timestamp_msec
@@ -114,7 +115,7 @@ def list_req_body(num_reminders: int, max_timestamp_msec: int = 0) -> str:
         # timestamp or even a bit smaller timestamp are not returned. Therefore we increase
         # the timestamp by 15 hours, which seems to solve this...  ~~voodoo~~
         # (I wish Google had a normal API for reminders)
-    
+
     return json.dumps(body)
 
 
@@ -129,18 +130,17 @@ def build_reminder(reminder_dict: dict) -> Optional[Reminder]:
         hour = r['5']['4']['1']
         minute = r['5']['4']['2']
         second = r['5']['4']['3']
-        
+
         done = '8' in r and r['8'] == 1
 
-    
         return {
-            "title": title+" (done)" if done else title,
+            "title": title + " (done)" if done else title,
             "start": datetime(year, month, day, hour, minute, second),
             "link": "https://calendar.google.com",
             "color": "#dc143c",
             "calendar": "Reminders"
         }
-    
+
     except KeyError:
         print('build_reminder failed: unrecognized reminder dictionary format')
         return None

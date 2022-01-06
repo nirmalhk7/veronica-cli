@@ -67,10 +67,11 @@ def do_email(self, args):
         link = "https://mail.google.com/mail/u/0/#inbox/"
         for i in mails:
             table.add_row(
-                "[{}{}]{}[/]".format(i.starred,i.category_color ,i.Date),
-                "[{}{}]{}[/]".format(i.starred,i.category_color ,i.From),
-                "[{}{}][link={}]{}[/link][/]".format(i.starred,i.category_color,link+i.id,i.Subject),
-                "[{}{}]{}[/]".format(i.starred,i.category_color ,i.labels),   
+                "[{}{}]{}[/]".format(i.starred, i.category_color, i.Date),
+                "[{}{}]{}[/]".format(i.starred, i.category_color, i.From),
+                "[{}{}][link={}]{}[/link][/]".format(
+                    i.starred, i.category_color, link + i.id, i.Subject),
+                "[{}{}]{}[/]".format(i.starred, i.category_color, i.labels),
             )
 
     self.output.print(

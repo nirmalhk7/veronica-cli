@@ -4,16 +4,15 @@ import requests
 from rich import print
 
 
-
-def do_info(self,args):
+def do_info(self, args):
     print("Retreiving information for your query ... ")
     try:
-        query,limit = args.split(':')
+        query, limit = args.split(':')
         limit = int(limit)
     except ValueError:
         query = args
         limit = 1
-    
+
     service_url = 'https://kgsearch.googleapis.com/v1/entities:search'
     if(self.settings["env"]["GOOGLE_API"]):
         parameters = {
@@ -22,7 +21,7 @@ def do_info(self,args):
             'indent': True,
             'key': self.settings["env"]["GOOGLE_API"],
         }
-        response = requests.get(service_url,params=parameters)
+        response = requests.get(service_url, params=parameters)
         if(response.status_code == 200):
             data = response.json()
             for i in range(limit):
@@ -37,11 +36,11 @@ def do_info(self,args):
                         print(res['description'])
                     except KeyError:
                         pass
-                    try:    
+                    try:
                         print(res['detailedDescription']['articleBody'])
                     except KeyError:
                         pass
-                    try:    
+                    try:
                         print(res['detailedDescription']['url'])
                     except KeyError:
                         pass
@@ -49,4 +48,5 @@ def do_info(self,args):
                 except IndexError:
                     print("Sorry, no data available!")
         else:
-            print("Error: {}".format(str(response)),speakText="Sorry, there's been some kind of an error.")
+            print("Error: {}".format(str(response)),
+                  speakText="Sorry, there's been some kind of an error.")

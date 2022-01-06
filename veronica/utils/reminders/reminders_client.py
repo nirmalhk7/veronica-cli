@@ -17,15 +17,15 @@ HTTP_OK = 200
 
 
 class RemindersClient:
-    def __init__(self,SCOPES):
+    def __init__(self, SCOPES):
         self.auth_http = client_utils.authenticate(SCOPES)
-    
+
     @staticmethod
     def _report_error(response, content, func_name: str):
         print(f'Error in {func_name}:')
         print(f'    status code: {response.status}')
         print(f'    content: {content}')
-    
+
     def create_reminder(self, dt, title) -> bool:
         """
         send a 'create reminder' request.
@@ -46,7 +46,7 @@ class RemindersClient:
         else:
             self._report_error(response, content, 'create_reminder')
             return False
-    
+
     def delete_reminder(self, reminder_id: str) -> bool:
         """
         delete the reminder with the given id.
@@ -63,8 +63,8 @@ class RemindersClient:
         else:
             self._report_error(response, content, 'delete_reminder')
             return False
-    
-    def list_reminders(self: int,hours_upto) -> Optional[List[Reminder]]:
+
+    def list_reminders(self: int, hours_upto) -> Optional[List[Reminder]]:
         """
         returns a list of the last num_reminders created reminders, or
         None if an error occurred
@@ -85,8 +85,9 @@ class RemindersClient:
                 for reminder_dict in reminders_dict_list
             ]
             return [
-                i for i in reminders if datetime.now() < i["start"] < datetime.now() + timedelta(hours=hours_upto)
-            ]
+                i for i in reminders if datetime.now() < i["start"] < datetime.now() +
+                timedelta(
+                    hours=hours_upto)]
         else:
             self._report_error(response, content, 'list_reminders')
             return None
