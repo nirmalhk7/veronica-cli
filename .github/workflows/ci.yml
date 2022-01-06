@@ -1,0 +1,29 @@
+name: Project CI
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt 
+        pip install pyinstaller
+    - name: Install
+      run: pyinstaller cli.spec --noconfirm --onefile
+    - name: Generate changelog and update version
+      run: semantic-release changelog > CHANGELOG.md && semantic-release version
+    - uses: ncipollo/release-action@v1
+      with:
+        artifacts: "dist/veronica"
+        bodyFile: "CHANGELOG.md"
+        token: ${{ secrets.GITHUB_TOKEN }}

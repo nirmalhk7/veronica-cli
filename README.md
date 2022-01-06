@@ -25,3 +25,6 @@ Here BASE_PATH is the path where you unzipped Veronica to.
 ### Device Mgmt Commands
 
 ### Device Interaction Commands
+
+## Changelog
+<!--next-version-placeholder-->
