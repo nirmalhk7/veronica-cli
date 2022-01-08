@@ -19,7 +19,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt 
         pip install python-semantic-release
-    - name: Install
+    - name: Build project
       run: pyinstaller cli.spec --noconfirm --onefile
     - name: Generate changelog and update version
       run: | 
@@ -32,3 +32,4 @@ jobs:
         bodyFile: "CHANGELOG.md"
         token: ${{ secrets.GITHUB_TOKEN }}
         name: ${{ env.VERSION }}
+        tag: ${{ env.VERSION }}
