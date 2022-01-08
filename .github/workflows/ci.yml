@@ -3,6 +3,7 @@ name: Project CI
 on:
   push:
     branches: [master]
+    tags: '*'
 
 jobs:
   deploy:

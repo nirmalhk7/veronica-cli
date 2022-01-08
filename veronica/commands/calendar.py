@@ -75,22 +75,23 @@ def list_calendar(google_setup):
                                                    'items', [])
 
             for cal_event in cal_events:
-                event = EventInterface(
-                    cal_event["htmlLink"],
-                    cal_event["summary"] if "summary" in cal_event else "Untitled",
-                    calendar.get(
-                        "summaryOverride",
-                        None) or calendar.get(
-                        "summary",
-                        None),
-                    calendar["backgroundColor"])
+                if("start" in cal_event):
+                    event = EventInterface(
+                        cal_event["htmlLink"],
+                        cal_event["summary"] if "summary" in cal_event else "Untitled",
+                        calendar.get(
+                            "summaryOverride",
+                            None) or calendar.get(
+                            "summary",
+                            None),
+                        calendar["backgroundColor"])
 
-                event.set_date(cal_event['start'], cal_event['end'])
+                    event.set_date(cal_event['start'], cal_event['end'])
 
-                if ("hangoutLink" in cal_event):
-                    event.hangoutLink = cal_event["hangoutLink"]
+                    if ("hangoutLink" in cal_event):
+                        event.hangoutLink = cal_event["hangoutLink"]
 
-                events.append(event)
+                    events.append(event)
     return events
 
 

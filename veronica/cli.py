@@ -53,13 +53,13 @@ class Veronica(Cmd):
     from veronica.commands.info import do_info
     from veronica.commands.weather import do_weather
     from veronica.commands.email import do_email
-    from veronica.commands.calendar import do_calendar
     from veronica.commands.search import do_search
     from veronica.commands.store import do_store
     from veronica.commands.exit import do_exit, do_EOF
     from veronica.commands.list import do_list
     from veronica.commands.reminders import do_remind
     from veronica.commands.meet import do_meet
+    from veronica.commands.calendar import do_calendar
     from veronica.commands.test import do_test
 
     def __init__(self, silent=False):
@@ -76,16 +76,16 @@ class Veronica(Cmd):
 
     def vx_google_setup(self):
         creds = None
+
+        # Get app OAuth settings
         if "oauth_resp" in self.settings["google"]:
             creds = Credentials.from_authorized_user_info(
                 self.settings["google"]["oauth_resp"], self.SCOPES)
+        
         if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_config(
-                    self.settings["google"]["oauth"], self.SCOPES)
-                creds = flow.run_local_server(port=0)
+            flow = InstalledAppFlow.from_client_config(
+                self.settings["google"]["oauth"], self.SCOPES)
+            creds = flow.run_local_server(port=0)
 
             self.settings["google"]["oauth_resp"] = json.loads(creds.to_json())
             with open(Path.home() / "veronica.settings.json", "w") as f:
@@ -150,11 +150,11 @@ def main():
         '-l', '--log', default=logging.DEBUG, help="Logging Level")
     parser.add_argument(
         '-s', '--silent', help="First time setup", action='store_true')
-    parser.add_argument(
-        '-s',
-        '--setup',
-        help="Run Veronica on silent mode.",
-        action='store_true')
+    # parser.add_argument(
+    #     '-s',
+    #     '--setup',
+    #     help="Run Veronica on silent mode.",
+    #     action='store_true')
     parser.add_argument(
         '_', nargs='*', help=", ".join([attr[3:] for attr in dir(Veronica) if attr[:3] == "do_"]))
     args = parser.parse_args()
